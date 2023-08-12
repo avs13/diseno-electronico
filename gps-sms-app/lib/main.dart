@@ -39,8 +39,9 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   String latitude = "";
-  String altitude = "";
+  String longitude = "";
   String phone = "";
+  String timestamp = "";
   StreamSubscription<Position>? positionStream;
   final Telephony telephony = Telephony.instance;
   final LocationSettings locationSettings = const LocationSettings(
@@ -59,15 +60,17 @@ class _MyHomePageState extends State<MyHomePage> {
   void getLocation() async {
     bool permisosLocation = await checkPermission();
     if (permisosLocation && positionStream == null ){
-      positionStream = Geolocator.getPositionStream(locationSettings: locationSettings).listen(
-              (Position? position) {
-
-            altitude = position!.altitude.toString();
-            latitude = position.latitude.toString() ;
-            setState(() {
-
-            });
-          });
+      positionStream = Geolocator.getPositionStream(locationSettings: locationSettings).listen((Position? position) {
+        if(position != null) {
+          longitude = position.longitude.toString();
+          latitude = position.latitude.toString();
+          var timestamp = position.timestamp;
+          if(timestamp != null){
+            this.timestamp = timestamp.millisecondsSinceEpoch.toString();
+          }
+          setState(() {});
+        }
+      });
     }
   }
 
@@ -115,7 +118,7 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Center(child:  Text("Coordenadas", style: TextStyle(fontSize: 20))),
-            Center(child:  Text(latitude == "" ?'Sin permisos': 'Latitud:$latitude Altitud: $altitude',)),
+            Center(child:  Text(latitude == "" ?'Sin permisos': 'Latitud:$latitude Longitud: $longitude',)),
             const SizedBox(height: 50),
             SizedBox(width: 300, child:TextField(onChanged: (value){
               if(value.isNotEmpty){
@@ -133,7 +136,7 @@ class _MyHomePageState extends State<MyHomePage> {
           FloatingActionButton(
             onPressed: (){
               RawDatagramSocket.bind(InternetAddress.anyIPv4, 8000).then((socket) {
-                socket.send(const Utf8Codec().encode('Tus coordenadas son : \n Latitud:$latitude \n Altitud: $altitude'), InternetAddress("192.168.1.92"), 8000);
+                socket.send(const Utf8Codec().encode('Tus coordenadas son : \n Latitud:$latitude \n Longitud: $longitude \n timestamp: $timestamp'), InternetAddress("192.168.1.92"), 8000);
                 socket.listen((event) {
                   if (event == RawSocketEvent.write) {
                     socket.close();
@@ -157,7 +160,7 @@ class _MyHomePageState extends State<MyHomePage> {
           FloatingActionButton(
             onPressed: (){
               RawSocket.connect("192.168.1.92", 8000).then((socket) {
-                socket.write(const Utf8Codec().encode('Tus coordenadas son : \n Latitud:$latitude \n Altitud: $altitude'));
+                socket.write(const Utf8Codec().encode('Tus coordenadas son : \n Latitud:$latitude \n Longitud: $longitude \n timestamp: $timestamp'));
                 socket.listen((event) {
                   if (event == RawSocketEvent.write) {
                     socket.close();
@@ -191,8 +194,8 @@ class _MyHomePageState extends State<MyHomePage> {
               if (positionStream == null ){
                 getLocation();
               }
-              if(phone.length == 10 && latitude != "" && altitude != ""){
-                telephony.sendSms(to: phone, message: 'Tus coordenadas son : \n Latitud:$latitude \n Altitud: $altitude');
+              if(phone.length == 10 && latitude != "" && longitude != ""){
+                telephony.sendSms(to: phone, message: 'Tus coordenadas son : \n Latitud:$latitude \n Longitud: $longitude \n timestamp: $timestamp');
                 Fluttertoast.showToast(
                     msg: 'Ubicacion Enviada',
                     toastLength: Toast.LENGTH_SHORT,
