@@ -1,11 +1,11 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:telephony/telephony.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'dart:io';
-
+import 'services/udp.dart';
+import 'services/tcp.dart';
+import 'utils/validateIP.dart';
 void main() {
   runApp(const MyApp());
 }
@@ -19,7 +19,6 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-
         useMaterial3: true,
       ),
       //darkTheme: ThemeData.dark(),
@@ -41,6 +40,9 @@ class _MyHomePageState extends State<MyHomePage> {
   String latitude = "";
   String longitude = "";
   String phone = "";
+  List<String> listIp = [""];
+  String ip = "";
+  int port = 80;
   String timestamp = "";
   StreamSubscription<Position>? positionStream;
   final Telephony telephony = Telephony.instance;
@@ -58,8 +60,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void getLocation() async {
-    bool permisosLocation = await checkPermission();
-    if (permisosLocation && positionStream == null ){
+    bool permissionsLocation = await checkPermission();
+    if (permissionsLocation && positionStream == null ){
       positionStream = Geolocator.getPositionStream(locationSettings: locationSettings).listen((Position? position) {
         if(position != null) {
           longitude = position.longitude.toString();
@@ -129,52 +131,54 @@ class _MyHomePageState extends State<MyHomePage> {
             },decoration: const InputDecoration(border: OutlineInputBorder(),labelText: "Teléfono",),
               keyboardType: TextInputType.number,
             ),),
+            const SizedBox(height: 10),
+            SizedBox(width: 300,
+              child:TextField(onChanged: (value){
+                if(value.isNotEmpty){
+                  if(ipIsValid(value)){
+                    var v = value.split(":");
+                    ip = v[0];
+                    if(v.length == 2){
+                      port = int.parse(v[1]);
+                    }
+                  }
+                 else{
+                    ip = value.split(":")[0];
+                    port = 80;
+                  }
+                  setState((){});
+                  }
+                },
+                decoration: const InputDecoration(border: OutlineInputBorder(),labelText: "Direccion IP",),
+                keyboardType: TextInputType.datetime,
+              ),
+            ),
           ]),),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           FloatingActionButton(
             onPressed: (){
-              RawDatagramSocket.bind(InternetAddress.anyIPv4, 8000).then((socket) {
-                socket.send(const Utf8Codec().encode('Tus coordenadas son : \n Latitud:$latitude \n Longitud: $longitude \n timestamp: $timestamp'), InternetAddress("192.168.1.92"), 8000);
-                socket.listen((event) {
-                  if (event == RawSocketEvent.write) {
-                    socket.close();
-                    Fluttertoast.showToast(
-                        msg: "Enviado UDP",
-                        toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.CENTER,
-                        backgroundColor: Colors.red,
-                        textColor: Colors.white,
-                        fontSize: 16.0
-                    );
-                  }
-                });
-              });
+              if(ipIsValid('$ip:$port')){
+                sendMessageByUDP(ip,port,
+                    'Tus coordenadas son : \n Latitud:$latitude \n Longitud: $longitude \n timestamp: $timestamp');
+              }
+              else{
+                Fluttertoast.showToast(msg: 'Ip invalida ');
+              }
+
             },
             child: const Text("UDP") ,
-
-
           ),
           const SizedBox(height: 10),
           FloatingActionButton(
             onPressed: (){
-              RawSocket.connect("192.168.1.92", 8000).then((socket) {
-                socket.write(const Utf8Codec().encode('Tus coordenadas son : \n Latitud:$latitude \n Longitud: $longitude \n timestamp: $timestamp'));
-                socket.listen((event) {
-                  if (event == RawSocketEvent.write) {
-                    socket.close();
-                    Fluttertoast.showToast(
-                        msg: "Enviado TCP",
-                        toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.CENTER,
-                        backgroundColor: Colors.red,
-                        textColor: Colors.white,
-                        fontSize: 16.0
-                    );
-                  }
-                });
-              });
+              if(ipIsValid('$ip:$port')){
+                sendMessageByTCP(ip,port, 'Tus coordenadas son : \n Latitud:$latitude \n Longitud: $longitude \n timestamp: $timestamp');
+              }
+              else{
+                Fluttertoast.showToast(msg: 'Ip invalida $ip:$port');
+              }
             },
             child: const Text("TCP"),
           ),
@@ -182,33 +186,17 @@ class _MyHomePageState extends State<MyHomePage> {
           FloatingActionButton(
             onPressed: (){
               if(phone.length != 10){
-                Fluttertoast.showToast(
-                    msg: 'Teléfono invalido',
-                    toastLength: Toast.LENGTH_SHORT,
-                    gravity: ToastGravity.CENTER,
-                    backgroundColor: Colors.red,
-                    textColor: Colors.white,
-                    fontSize: 16.0
-                );
+                Fluttertoast.showToast(msg: 'Teléfono invalido');
               }
               if (positionStream == null ){
                 getLocation();
               }
               if(phone.length == 10 && latitude != "" && longitude != ""){
                 telephony.sendSms(to: phone, message: 'Tus coordenadas son : \n Latitud:$latitude \n Longitud: $longitude \n timestamp: $timestamp');
-                Fluttertoast.showToast(
-                    msg: 'Ubicacion Enviada',
-                    toastLength: Toast.LENGTH_SHORT,
-                    gravity: ToastGravity.CENTER,
-                    backgroundColor: Colors.red,
-                    textColor: Colors.white,
-                    fontSize: 16.0
-                );
+                Fluttertoast.showToast(msg: 'Ubicacion Enviada');
               }
             },
             child:const Icon(Icons.send) ,
-
-
           ),const SizedBox(height: 10),
         ],),
     );//
