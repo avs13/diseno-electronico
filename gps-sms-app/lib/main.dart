@@ -41,6 +41,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String longitude = "";
   String phone = "";
   List<String> listIp = [""];
+  List<int> listPort = [0];
   String ip = "";
   int port = 80;
   String timestamp = "";
@@ -135,17 +136,27 @@ class _MyHomePageState extends State<MyHomePage> {
             SizedBox(width: 300,
               child:TextField(onChanged: (value){
                 if(value.isNotEmpty){
-                  if(ipIsValid(value)){
-                    var v = value.split(":");
-                    ip = v[0];
-                    if(v.length == 2){
-                      port = int.parse(v[1]);
+                  listIp = [];
+                  listPort = [];
+                  if(value.length > 1){
+                    var list = value.split(" ");
+                    for (String val in list){
+                      if(ipIsValid(val)){
+                        var v = val.split(":");
+                        listIp.add(v[0]);
+                        var port = 80;
+                        if(v.length == 2){
+                         port = int.parse(v[1]);
+                        }
+                        listPort.add(port);
+                      }
+
                     }
                   }
-                 else{
-                    ip = value.split(":")[0];
-                    port = 80;
-                  }
+                if(listIp.isEmpty){
+                  listIp = [""];
+                  listPort = [0];
+                }
                   setState((){});
                   }
                 },
@@ -159,25 +170,27 @@ class _MyHomePageState extends State<MyHomePage> {
         children: [
           FloatingActionButton(
             onPressed: (){
-              if(ipIsValid('$ip:$port')){
-                sendMessageByUDP(ip,port,
-                    'Tus coordenadas son : \n Latitud:$latitude \n Longitud: $longitude \n timestamp: $timestamp');
+              if(listIp[0] == ""){
+                Fluttertoast.showToast(msg: 'No hay IPs validas');
               }
               else{
-                Fluttertoast.showToast(msg: 'Ip invalida ');
+                for (var i = 0; i < listIp.length; i++) {
+                  sendMessageByUDP(listIp[i],listPort[i], 'Tus coordenadas son : \n Latitud:$latitude \n Longitud: $longitude \n timestamp: $timestamp');
+                }
               }
-
             },
             child: const Text("UDP") ,
           ),
           const SizedBox(height: 10),
           FloatingActionButton(
             onPressed: (){
-              if(ipIsValid('$ip:$port')){
-                sendMessageByTCP(ip,port, 'Tus coordenadas son : \n Latitud:$latitude \n Longitud: $longitude \n timestamp: $timestamp');
+              if(listIp[0] == ""){
+                Fluttertoast.showToast(msg: 'No hay IPs validas');
               }
               else{
-                Fluttertoast.showToast(msg: 'Ip invalida $ip:$port');
+                for (var i = 0; i < listIp.length; i++) {
+                  sendMessageByTCP(listIp[i],listPort[i], 'Tus coordenadas son : \n Latitud:$latitude \n Longitud: $longitude \n timestamp: $timestamp');
+                }
               }
             },
             child: const Text("TCP"),
