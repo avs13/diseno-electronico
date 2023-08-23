@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:telephony/telephony.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'services/udp.dart';
 import 'services/tcp.dart';
@@ -39,14 +38,12 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   String latitude = "";
   String longitude = "";
-  String phone = "";
   List<String> listIp = [""];
   List<int> listPort = [0];
   String ip = "";
   int port = 80;
   String timestamp = "";
   StreamSubscription<Position>? positionStream;
-  final Telephony telephony = Telephony.instance;
   final LocationSettings locationSettings = const LocationSettings(
     accuracy: LocationAccuracy.high,
     distanceFilter: 100,
@@ -112,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Enviar ubicacion SMS"),
+      appBar: AppBar(title: const Text("Enviar ubicacion"),
         centerTitle: true,
         backgroundColor: Colors.redAccent,
       ),
@@ -123,15 +120,6 @@ class _MyHomePageState extends State<MyHomePage> {
             const Center(child:  Text("Coordenadas", style: TextStyle(fontSize: 20))),
             Center(child:  Text(latitude == "" ?'Sin permisos': 'Latitud:$latitude Longitud: $longitude',)),
             const SizedBox(height: 50),
-            SizedBox(width: 300, child:TextField(onChanged: (value){
-              if(value.isNotEmpty){
-                phone =value;
-                setState(() {
-                });
-              }
-            },decoration: const InputDecoration(border: OutlineInputBorder(),labelText: "Teléfono",),
-              keyboardType: TextInputType.number,
-            ),),
             const SizedBox(height: 10),
             SizedBox(width: 300,
               child:TextField(onChanged: (value){
@@ -198,21 +186,7 @@ class _MyHomePageState extends State<MyHomePage> {
             child: const Text("TCP"),
           ),
           const SizedBox(height: 10),
-          FloatingActionButton(
-            onPressed: (){
-              if(phone.length != 10){
-                Fluttertoast.showToast(msg: 'Teléfono invalido');
-              }
-              if (positionStream == null ){
-                getLocation();
-              }
-              if(phone.length == 10 && latitude != "" && longitude != ""){
-                telephony.sendSms(to: phone, message: 'Tus coordenadas son : \n Latitud:$latitude \n Longitud: $longitude \n timestamp: $timestamp');
-                Fluttertoast.showToast(msg: 'Ubicacion Enviada');
-              }
-            },
-            child:const Icon(Icons.send) ,
-          ),const SizedBox(height: 10),
+
         ],),
     );//
   }
