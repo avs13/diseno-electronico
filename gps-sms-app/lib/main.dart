@@ -175,6 +175,7 @@ class _MyHomePageState extends State<MyHomePage> {
               }
               else{
                 for (var i = 0; i < listIp.length; i++) {
+                  //Fluttertoast.showToast(msg: '${listIp[i]} ${listPort[i]}');
                   sendMessageByUDP(listIp[i],listPort[i], 'Tus coordenadas son : \n Latitud:$latitude \n Longitud: $longitude \n timestamp: $timestamp');
                 }
               }
@@ -189,6 +190,7 @@ class _MyHomePageState extends State<MyHomePage> {
               }
               else{
                 for (var i = 0; i < listIp.length; i++) {
+                  //Fluttertoast.showToast(msg: '${listIp[i]} ${listPort[i]}');
                   sendMessageByTCP(listIp[i],listPort[i], 'Tus coordenadas son : \n Latitud:$latitude \n Longitud: $longitude \n timestamp: $timestamp');
                 }
               }
