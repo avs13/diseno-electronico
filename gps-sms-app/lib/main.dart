@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -26,6 +27,14 @@ class MyApp extends StatelessWidget {
   }
 }
 
+Uint8List locationToListBytes(double latitude,double longitude,int timestamp) {
+  var list = Uint8List(24);
+  list.buffer.asFloat64List()[0] = latitude;
+  list.buffer.asFloat64List()[1] = longitude;
+  list.buffer.asInt64List()[2] = timestamp;
+  return list;
+}
+
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
@@ -36,13 +45,16 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  String latitude = "";
-  String longitude = "";
+  double latitude = 0;
+  double longitude = 0;
   List<String> listIp = [""];
   List<int> listPort = [0];
   String ip = "";
   int port = 80;
-  String timestamp = "";
+  int timestamp = 0;
+
+
+
   StreamSubscription<Position>? positionStream;
   final LocationSettings locationSettings = const LocationSettings(
     accuracy: LocationAccuracy.high,
@@ -62,11 +74,11 @@ class _MyHomePageState extends State<MyHomePage> {
     if (permissionsLocation && positionStream == null ){
       positionStream = Geolocator.getPositionStream(locationSettings: locationSettings).listen((Position? position) {
         if(position != null) {
-          longitude = position.longitude.toString();
-          latitude = position.latitude.toString();
+          longitude = position.longitude;
+          latitude = position.latitude;
           var timestamp = position.timestamp;
           if(timestamp != null){
-            this.timestamp = timestamp.millisecondsSinceEpoch.toString();
+            this.timestamp = timestamp.millisecondsSinceEpoch;
           }
           setState(() {});
         }
@@ -118,7 +130,7 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Center(child:  Text("Coordenadas", style: TextStyle(fontSize: 20))),
-            Center(child:  Text(latitude == "" ?'Sin permisos': 'Latitud:$latitude Longitud: $longitude',)),
+            Center(child:  Text(latitude == "" ?'Sin permisos': 'Latitud:$latitude Longitud: $longitude timestamp: $timestamp',)),
             const SizedBox(height: 50),
             const SizedBox(height: 10),
             SizedBox(width: 300,
@@ -163,8 +175,7 @@ class _MyHomePageState extends State<MyHomePage> {
               }
               else{
                 for (var i = 0; i < listIp.length; i++) {
-                  //Fluttertoast.showToast(msg: '${listIp[i]} ${listPort[i]}');
-                  sendMessageByUDP(listIp[i],listPort[i], 'Tus coordenadas son : \n Latitud:$latitude \n Longitud: $longitude \n timestamp: $timestamp');
+                  sendMessageByUDP(listIp[i],listPort[i],locationToListBytes(longitude,latitude,timestamp));
                 }
               }
             },
@@ -178,8 +189,7 @@ class _MyHomePageState extends State<MyHomePage> {
               }
               else{
                 for (var i = 0; i < listIp.length; i++) {
-                  //Fluttertoast.showToast(msg: '${listIp[i]} ${listPort[i]}');
-                  sendMessageByTCP(listIp[i],listPort[i], 'Tus coordenadas son : \n Latitud:$latitude \n Longitud: $longitude \n timestamp: $timestamp');
+                  sendMessageByTCP(listIp[i],listPort[i],locationToListBytes(longitude,latitude,timestamp));
                 }
               }
             },
