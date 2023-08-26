@@ -3,7 +3,7 @@ const { rawToLocation } = require("./utils/rawToLocation");
 const { rawToHexa } = require("./utils/rawToHexa");   
 const mongoose = require("mongoose");
 require("dotenv").config();
-const Location = require('./Location');  
+const Location = require('./Location'); 
 
 const server = net.createServer();
 
@@ -20,8 +20,13 @@ server.on('connection', (socket) => {
         const locationData = rawToLocation(hexData);     
         console.log(JSON.stringify(locationData));
         
+        
         try {
-            const newLocation = new Location({ coordinates: JSON.stringify(locationData) });
+            const newLocation = new Location({
+                longitude: locationData.longitude,
+                latitude: locationData.latitude,
+                timestamp: locationData.timestamp
+            });
             await newLocation.save();
             console.log('Ubicación almacenada en la base de datos:', newLocation);
             socket.write('Recibido y almacenado en la base de datos!');
@@ -41,5 +46,5 @@ server.on('connection', (socket) => {
 });
 
 server.listen(8000, () => {
-    console.log('Servidor está escuchando en la puerto', server.address().port);
+    console.log('Servidor está escuchando en el puerto', server.address().port);
 });
