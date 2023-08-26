@@ -4,7 +4,7 @@ function rawToHexa(message){
     for (const byte of bytes) {
         hexValues.push(byte.toString(16).padStart(2, '0'));
     }
-    return hexValues.join(' ')
+    return hexValues.join('')
 }
 
 module.exports = {

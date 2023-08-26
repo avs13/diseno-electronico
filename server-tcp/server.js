@@ -16,7 +16,7 @@ server.on('connection', (socket) => {
     socket.on('data', async (data) => {
         console.log('\nEl cliente ' + socket.remoteAddress + ":" + socket.remotePort + " dice... Tus coordenadas son: ");
         
-        const hexData = rawToHexa(data.toString()); 
+        const hexData = rawToHexa(data); 
         const locationData = rawToLocation(hexData);     
         console.log(JSON.stringify(locationData));
         
