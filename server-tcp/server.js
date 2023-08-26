@@ -1,25 +1,35 @@
 const net = require('net');
-
 const { rawToLocation } = require("./utils/rawToLocation");   
 const { rawToHexa } = require("./utils/rawToHexa");   
 const mongoose = require("mongoose");
 require("dotenv").config();
+const Location = require('./Location');  // Importa el modelo de la ubicación
 
 const server = net.createServer();
 
 mongoose
     .connect(process.env.MONGOODB_URI)
-    .then(() => console.log('Connected to MongoDB Atlas'));
+    .then(() => console.log('Connected to MongoDB Atlas'))
+    .catch(error => console.error('Error connecting to MongoDB:', error));
     
 server.on('connection', (socket) => {
-    socket.on('data', (data) => {
+    socket.on('data', async (data) => {
         console.log('\nEl cliente ' + socket.remoteAddress + ":" + socket.remotePort + " dice... Tus coordenadas son: ");
         
         const hexData = rawToHexa(data.toString()); 
-        const location = rawToLocation(hexData);     
-        console.log(JSON.stringify(location));
+        const locationData = rawToLocation(hexData);     
+        console.log(JSON.stringify(locationData));
         
-        socket.write('Recibido!');
+        // Crea una nueva instancia del modelo y guárdala en la base de datos
+        try {
+            const newLocation = new Location({ coordinates: JSON.stringify(locationData) });
+            await newLocation.save();
+            console.log('Ubicación almacenada en la base de datos:', newLocation);
+            socket.write('Recibido y almacenado en la base de datos!');
+        } catch (error) {
+            console.error('Error al guardar la ubicación:', error);
+            socket.write('Error al almacenar en la base de datos.');
+        }
     });
 
     socket.on('close', () => {
@@ -34,5 +44,3 @@ server.on('connection', (socket) => {
 server.listen(8000, () => {
     console.log('Servidor está escuchando en la puerto', server.address().port);
 });
-
-
