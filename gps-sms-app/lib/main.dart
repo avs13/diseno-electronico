@@ -3,12 +3,19 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'services/udp.dart';
 import 'services/tcp.dart';
 import 'utils/validateIP.dart';
+import 'services/gps.dart';
 
 void main() {
   runApp(const MyApp());
+}
+
+class GeoLocation {
+  double latitude;
+  double longitude;
+  int timestamp;
+  GeoLocation(this.latitude, this.longitude, this.timestamp);
 }
 
 class MyApp extends StatelessWidget {
@@ -47,68 +54,128 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  double latitude = 0;
-  double longitude = 0;
-  List<String> listIp = [""];
-  List<int> listPort = [0];
+  var textController = TextEditingController();
+  GeoLocation location = GeoLocation(0, 0, 0);
+  List<(String, int)> listIP = [("", 0)];
   String ip = "";
   int port = 80;
-  int timestamp = 0;
   Timer? timer;
+
+  void inputHandler(String value) {
+    if (value.isNotEmpty) {
+      listIP = [];
+      if (value.isNotEmpty) {
+        var list = value.split(" ");
+        for (String val in list) {
+          if (ipIsValid(val)) {
+            var ip = val.split(":");
+            var port = 80;
+            if (ip.length == 2) {
+              port = int.parse(ip[1]);
+            }
+            listIP.add((ip[0], port));
+          }
+        }
+      }
+      if (listIP.isEmpty) {
+        listIP = [("", 0)];
+      }
+      setState(() {});
+    }
+  }
+
+  void onPressedTimer() {
+    if (listIP[0].$1.isNotEmpty) {
+      if (timer == null) {
+        Fluttertoast.showToast(msg: "Envio automatico activado");
+
+        timer = Timer.periodic(const Duration(seconds: 5), (time) {
+          for (final (ip, port) in listIP) {
+            sendMessageByTCP(
+                ip,
+                port,
+                locationToListBytes(
+                    location.longitude, location.latitude, location.timestamp));
+          }
+        });
+        setState(() {});
+      } else {
+        Fluttertoast.showToast(msg: "Envio automatico desactivado");
+        timer?.cancel();
+        setState(() {
+          timer = null;
+        });
+      }
+    }
+  }
+
+  void onPressedTCP() {
+    if (listIP[0].$1.isNotEmpty) {
+      Fluttertoast.showToast(msg: 'No hay IPs validas');
+    } else {
+      for (final (ip, port) in listIP) {
+        sendMessageByTCP(
+            ip,
+            port,
+            locationToListBytes(
+                location.longitude, location.latitude, location.timestamp));
+      }
+    }
+  }
 
   StreamSubscription<Position>? positionStream;
   final LocationSettings locationSettings = const LocationSettings(
     accuracy: LocationAccuracy.high,
-    distanceFilter: 100,
+    distanceFilter: 1,
   );
 
   @override
   void initState() {
     super.initState();
-    getLocation();
+    getLocation((latitude, longitude, timestamp) {
+      location.latitude = latitude;
+      location.longitude = longitude;
+      location.timestamp = timestamp;
+      setState(() {});
+    });
   }
 
-  void getLocation() async {
-    bool permissionsLocation = await checkPermission();
-    if (permissionsLocation && positionStream == null) {
-      const LocationSettings locationSettings = LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 1,
-      );
-
-      positionStream =
-          Geolocator.getPositionStream(locationSettings: locationSettings)
-              .listen((Position? position) {
-        if (position != null) {
-          longitude = position.longitude;
-          latitude = position.latitude;
-          var timestamp = position.timestamp;
-          if (timestamp != null) {
-            this.timestamp = timestamp.millisecondsSinceEpoch;
-          }
-          setState(() {});
-        }
-      });
-    }
-  }
-
-  Future<bool> checkPermission() async {
-    LocationPermission permission;
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        Fluttertoast.showToast(msg: 'Sin permisos de ubicacion');
-        return false;
-      }
-    }
-    if (permission == LocationPermission.deniedForever) {
-      Fluttertoast.showToast(msg: 'Sin permisos de ubicacion permante');
-      return false;
-    }
-    return true;
-  }
-
+  //void getLocation() async {
+  //  bool permissionsLocation = await checkPermission();
+  //  if (permissionsLocation && positionStream == null) {
+  //    positionStream =
+  //        Geolocator.getPositionStream(locationSettings: locationSettings)
+  //            .listen((Position? position) {
+  //      if (position != null) {
+  //        location.longitude = position.longitude;
+  //        location.latitude = position.latitude;
+  //        var timestamp = position.timestamp;
+  //        if (timestamp != null) {
+  //          location.timestamp = timestamp.millisecondsSinceEpoch;
+  //        }
+  //        setState(() {});
+  //      }
+  //    });
+  //  }
+  //}
+//
+  //Future<bool> checkPermission() async {
+  //  LocationPermission permission;
+  //  permission = await Geolocator.checkPermission();
+  //  if (permission == LocationPermission.denied) {
+  //    permission = await Geolocator.requestPermission();
+  //    if (permission == LocationPermission.denied) {
+  //      Fluttertoast.showToast(msg: 'Sin permisos de ubicacion');
+  //      return false;
+  //    }
+  //  }
+  //  if (permission == LocationPermission.deniedForever) {
+  //    Fluttertoast.showToast(msg: 'Sin permisos de ubicacion permante');
+  //    return false;
+  //  }
+  //  return true;
+  //}
+//
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -119,44 +186,16 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          const Center(
-              child: Text("Coordenadas", style: TextStyle(fontSize: 20))),
-          Center(
-              child: Text(
-            latitude == 0
-                ? 'Sin permisos'
-                : 'Latitud:$latitude Longitud: $longitude timestamp: $timestamp',
-          )),
-          const SizedBox(height: 50),
-          const SizedBox(height: 10),
+          const Text("Coordenadas", style: TextStyle(fontSize: 20)),
+          Text('Latitud:${location.latitude}'),
+          Text('Longitud: ${location.longitude}'),
+          Text('Timestamp: ${location.timestamp}'),
+          const SizedBox(height: 30),
           SizedBox(
             width: 300,
             child: TextField(
-              onChanged: (value) {
-                if (value.isNotEmpty) {
-                  listIp = [];
-                  listPort = [];
-                  if (value.length > 1) {
-                    var list = value.split(" ");
-                    for (String val in list) {
-                      if (ipIsValid(val)) {
-                        var v = val.split(":");
-                        listIp.add(v[0]);
-                        var port = 80;
-                        if (v.length == 2) {
-                          port = int.parse(v[1]);
-                        }
-                        listPort.add(port);
-                      }
-                    }
-                  }
-                  if (listIp.isEmpty) {
-                    listIp = [""];
-                    listPort = [0];
-                  }
-                  setState(() {});
-                }
-              },
+              enabled: timer == null ? true : false,
+              onChanged: inputHandler,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 labelText: "Direccion IP",
@@ -170,51 +209,12 @@ class _MyHomePageState extends State<MyHomePage> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           FloatingActionButton(
-            onPressed: () {
-              if (listIp[0] != "") {
-                if (timer == null) {
-                  Fluttertoast.showToast(msg: "Envio automatico activado");
-                  timer = Timer.periodic(const Duration(seconds: 5), (time) {
-                    for (var i = 0; i < listIp.length; i++) {
-                      sendMessageByTCP(listIp[i], listPort[i],
-                          locationToListBytes(longitude, latitude, timestamp));
-                    }
-                  });
-                } else {
-                  Fluttertoast.showToast(msg: "Envio automatico desactivado");
-                  timer?.cancel();
-                  timer = null;
-                }
-              }
-            },
-            child: const Text("Timer"),
+            onPressed: onPressedTimer,
+            child: timer == null ? const Text("Timer") : const Text("Parar"),
           ),
           const SizedBox(height: 10),
           FloatingActionButton(
-            onPressed: () {
-              if (listIp[0] == "") {
-                Fluttertoast.showToast(msg: 'No hay IPs validas');
-              } else {
-                for (var i = 0; i < listIp.length; i++) {
-                  sendMessageByUDP(listIp[i], listPort[i],
-                      locationToListBytes(longitude, latitude, timestamp));
-                }
-              }
-            },
-            child: const Text("UDP"),
-          ),
-          const SizedBox(height: 10),
-          FloatingActionButton(
-            onPressed: () {
-              if (listIp[0] == "") {
-                Fluttertoast.showToast(msg: 'No hay IPs validas');
-              } else {
-                for (var i = 0; i < listIp.length; i++) {
-                  sendMessageByTCP(listIp[i], listPort[i],
-                      locationToListBytes(longitude, latitude, timestamp));
-                }
-              }
-            },
+            onPressed: onPressedTCP,
             child: const Text("TCP"),
           ),
           const SizedBox(height: 10),

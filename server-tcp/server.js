@@ -1,10 +1,11 @@
 const net = require('net');
-const { rawToLocation } = require("./rawToLocation");   
+
+const { rawToLocation } = require("./utils/rawToLocation");   
+const { rawToHexa } = require("./utils/rawToHexa");   
 const mongoose = require("mongoose");
 require("dotenv").config();
 
 const server = net.createServer();
-
 
 mongoose
     .connect(process.env.MONGOODB_URI)
@@ -30,17 +31,8 @@ server.on('connection', (socket) => {
     });
 });
 
-function rawToHexa(message){
-    const bytes = Buffer.from(message, 'utf-8');
-    const hexValues = [];
-    for (const byte of bytes) {
-        hexValues.push(byte.toString(16).padStart(2, '0'));
-    }
-    return hexValues.join(' ')
-}
-
 server.listen(8000, () => {
-    console.log('Servidor está escuchando en la puerta', server.address().port);
+    console.log('Servidor está escuchando en la puerto', server.address().port);
 });
 
 
