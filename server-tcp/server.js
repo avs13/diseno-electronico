@@ -3,7 +3,7 @@ const { rawToLocation } = require("./utils/rawToLocation");
 const { rawToHexa } = require("./utils/rawToHexa");   
 const mongoose = require("mongoose");
 require("dotenv").config();
-const Location = require('./Location');  // Importa el modelo de la ubicación
+const Location = require('./Location');  
 
 const server = net.createServer();
 
@@ -20,7 +20,6 @@ server.on('connection', (socket) => {
         const locationData = rawToLocation(hexData);     
         console.log(JSON.stringify(locationData));
         
-        // Crea una nueva instancia del modelo y guárdala en la base de datos
         try {
             const newLocation = new Location({ coordinates: JSON.stringify(locationData) });
             await newLocation.save();
