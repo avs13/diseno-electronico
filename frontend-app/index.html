@@ -22,36 +22,32 @@
     <h1>My GPS</h1>
     <h2>Datos recolectados</h2>
     <div id="data-box">
-        <p>Latitud: <span id="lat"></span></p>
-        <p>Longitud: <span id="lon"></span></p>
-        <p>Fecha: <span id="fecha"></span></p>
-        <p>Hora: <span id="hora"></span></p>
+        <p><strong>Latitud:</strong> <span id="lat"></span></p>
+        <p><strong>Longitud:</strong> <span id="lon"></span></p>
+        <p><strong>Fecha:</strong> <span id="fecha"></span></p>
+        <p><strong>Hora:</strong> <span id="hora"></span></p>
     </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
     <script>
         // Conexión WebSocket
-        const socket = new WebSocket('ws://tu.servidor.com:puerto');
+        const socket = new WebSocket(`ws://${location.host}`);
 
         // Función para actualizar los datos en la página
         function actualizarDatos(datos) {
-            const { lat, lon, fecha, hora } = datos;
-            document.getElementById('lat').textContent = lat;
-            document.getElementById('lon').textContent = lon;
-            document.getElementById('fecha').textContent = fecha;
-            document.getElementById('hora').textContent = hora;
+            const { latitude, longitude, timestamp} = datos;
+            document.getElementById('lat').textContent = latitude;
+            document.getElementById('lon').textContent = longitude;
+            document.getElementById('fecha').textContent = new dayjs(timestamp).format("DD/MM/YYYY");
+            document.getElementById('hora').textContent = new dayjs(timestamp).format("hh:mm:ss a");
         }
 
         // Evento al recibir un mensaje desde el servidor
         socket.addEventListener('message', function(event) {
             const datos = JSON.parse(event.data);
+            console.log(datos)
             actualizarDatos(datos);
         });
 
-        // Actualizar datos cada 5 segundos
-        setInterval(() => {
-            // Enviar solicitud al servidor para obtener nuevos datos
-            socket.send('obtener_datos');
-        }, 5000);
     </script>
 </body>
 </html>

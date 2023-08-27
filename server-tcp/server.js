@@ -1,3 +1,4 @@
+const  { WebSocketServer } = require('ws');
 const mongoose = require("mongoose");
 const express = require("express");
 const net = require('net');
@@ -10,19 +11,21 @@ const app = express();
  
 const { Server } = require("socket.io");
 const httpServer = require("http").createServer(app);
-const io = new Server(httpServer, { });
+const wss = new WebSocketServer({ server:httpServer });
 const server = net.createServer();
 
 mongoose.connect(process.env.MONGOODB_URI)
     .then(() => console.log('Connected to MongoDB Atlas'))
     .catch(error => console.error('Error connecting to MongoDB:', error));
 
-io.on("connection", async (socket) => {
-    Location.findOne({}, (err, doc) => {
-        if (err) return;
-        socket.emit("ws", doc);
-    })
-    
+wss.on("connection", async (ws) => {
+    try {
+        const doc = await  Location.findOne({})
+        ws.send(JSON.stringify(doc));
+            
+    } catch (error) {
+            console.log(error)
+    }
 });
 
 server.on('connection', (socket) => {
@@ -33,7 +36,13 @@ server.on('connection', (socket) => {
         
         try {
             const newLocation = new Location(locationData);
-            io.emit("ws", JSON.stringify(locationData));
+
+            wss.clients.forEach(function each(ws) {
+                if (ws.isAlive === false) return ws.terminate();
+            
+                ws.send(JSON.stringify(locationData));
+            });
+
             await newLocation.save();
             console.log('Ubicación almacenada en la base de datos:', newLocation);
             socket.write('Recibido y almacenado en la base de datos!');
@@ -52,6 +61,7 @@ server.on('connection', (socket) => {
     });
 });
 
+app.use('/', express.static('public'));
 server.listen(8000, () => {
     console.log("Server TCP listening on port", server.address().port);
 });

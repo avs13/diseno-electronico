@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My GPS</title>
+    <style>
+        /* Estilos CSS */
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center; /* Centrar el texto en la página */
+        }
+        #data-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 300px;
+            margin: 20px auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>My GPS</h1>
+    <h2>Datos recolectados</h2>
+    <div id="data-box">
+        <p><strong>Latitud:</strong> <span id="lat"></span></p>
+        <p><strong>Longitud:</strong> <span id="lon"></span></p>
+        <p><strong>Fecha:</strong> <span id="fecha"></span></p>
+        <p><strong>Hora:</strong> <span id="hora"></span></p>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+    <script>
+        // Conexión WebSocket
+        const socket = new WebSocket(`ws://${location.host}`);
+
+        // Función para actualizar los datos en la página
+        function actualizarDatos(datos) {
+            const { latitude, longitude, timestamp} = datos;
+            document.getElementById('lat').textContent = latitude;
+            document.getElementById('lon').textContent = longitude;
+            document.getElementById('fecha').textContent = new dayjs(timestamp).format("DD/MM/YYYY");
+            document.getElementById('hora').textContent = new dayjs(timestamp).format("hh:mm:ss a");
+        }
+
+        // Evento al recibir un mensaje desde el servidor
+        socket.addEventListener('message', function(event) {
+            const datos = JSON.parse(event.data);
+            console.log(datos)
+            actualizarDatos(datos);
+        });
+
+    </script>
+</body>
+</html>

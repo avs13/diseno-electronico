@@ -14,7 +14,8 @@
     "mongoose": "^7.4.5",
     "nodemon": "^3.0.1",
     "readline-sync": "^1.4.10",
-    "socket.io": "^4.7.2"
+    "socket.io": "^4.7.2",
+    "ws": "^8.13.0"
   },
   "description": ""
 }
