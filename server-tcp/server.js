@@ -20,7 +20,7 @@ mongoose.connect(process.env.MONGOODB_URI)
 
 wss.on("connection", async (ws) => {
     try {
-        const doc = await  Location.findOne({})
+        const doc = await  Location.findOne().sort({field:"asc",_id:-1})
         ws.send(JSON.stringify(doc));
             
     } catch (error) {
