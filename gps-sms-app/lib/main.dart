@@ -110,7 +110,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void onPressedTCP() {
-    if (listIP[0].$1.isNotEmpty) {
+    if (listIP[0].$1.isEmpty) {
       Fluttertoast.showToast(msg: 'No hay IPs validas');
     } else {
       for (final (ip, port) in listIP) {
