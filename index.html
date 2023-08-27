@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My GPS</title>
+    <style>
+        /* Estilos CSS */
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center; /* Centrar el texto en la página */
+        }
+        #data-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 300px;
+            margin: 20px auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>My GPS</h1>
+    <h2>Datos recolectados</h2>
+    <div id="data-box">
+        <p>Latitud: <span id="lat"></span></p>
+        <p>Longitud: <span id="lon"></span></p>
+        <p>Fecha: <span id="fecha"></span></p>
+        <p>Hora: <span id="hora"></span></p>
+    </div>
+
+    <script>
+        // Conexión WebSocket
+        const socket = new WebSocket('ws://tu.servidor.com:puerto');
+
+        // Función para actualizar los datos en la página
+        function actualizarDatos(datos) {
+            const { lat, lon, fecha, hora } = datos;
+            document.getElementById('lat').textContent = lat;
+            document.getElementById('lon').textContent = lon;
+            document.getElementById('fecha').textContent = fecha;
+            document.getElementById('hora').textContent = hora;
+        }
+
+        // Evento al recibir un mensaje desde el servidor
+        socket.addEventListener('message', function(event) {
+            const datos = JSON.parse(event.data);
+            actualizarDatos(datos);
+        });
+
+        // Actualizar datos cada 5 segundos
+        setInterval(() => {
+            // Enviar solicitud al servidor para obtener nuevos datos
+            socket.send('obtener_datos');
+        }, 5000);
+    </script>
+</body>
+</html>
