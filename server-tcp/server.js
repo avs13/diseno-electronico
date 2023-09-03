@@ -1,74 +1,61 @@
-const  { WebSocketServer } = require('ws');
-const mongoose = require("mongoose");
+const { WebSocketServer } = require("ws");
 const express = require("express");
-const net = require('net');
+const net = require("net");
 
-const { rawToLocation } = require("./utils/rawToLocation");   
-const { rawToHexa } = require("./utils/rawToHexa");  
-const Location = require('./Location'); 
-require("dotenv").config();
+const serviceLocation = require("./api/location/service");
+const { rawToLocation } = require("./utils/rawToLocation");
+const { rawToHexa } = require("./utils/rawToHexa");
+const api = require("./api/routes");
+
 const app = express();
- 
-const { Server } = require("socket.io");
 const httpServer = require("http").createServer(app);
-const wss = new WebSocketServer({ server:httpServer });
+const wss = new WebSocketServer({ server: httpServer });
 const server = net.createServer();
 
-mongoose.connect(process.env.MONGOODB_URI)
-    .then(() => console.log('Connected to MongoDB Atlas'))
-    .catch(error => console.error('Error connecting to MongoDB:', error));
+require("dotenv").config();
 
 wss.on("connection", async (ws) => {
+  try {
+    const location = await serviceLocation.getLast();
+    ws.send(JSON.stringify(location));
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+server.on("connection", (socket) => {
+  socket.on("data", async (data) => {
+    const hexData = rawToHexa(data);
+    const locationData = rawToLocation(hexData);
+    serviceLocation.add(locationData).catch(console.error);
     try {
-        const doc = await  Location.findOne().sort({field:"asc",_id:-1})
-        ws.send(JSON.stringify(doc));
-            
+      wss.clients.forEach(function each(ws) {
+        if (ws.isAlive === false) return ws.terminate();
+        ws.send(JSON.stringify(locationData));
+      });
+      socket.write("Recibido y almacenado en la base de datos!");
     } catch (error) {
-            console.log(error)
+      socket.write("Error al almacenar en la base de datos.");
     }
+  });
+
+  socket.on("close", () => {
+    console.log("Comunicación finalizada");
+  });
+
+  socket.on("error", (err) => {
+    console.log(err.message);
+  });
 });
 
-server.on('connection', (socket) => {
-    socket.on('data', async (data) => {
-        const hexData = rawToHexa(data); 
-        const locationData = rawToLocation(hexData);     
-        console.log("Nuevas coordenadas",locationData);
-        
-        try {
-            const newLocation = new Location(locationData);
+app.use("/", express.static("public"));
+app.use(express.json());
+app.use("/api", api);
 
-            wss.clients.forEach(function each(ws) {
-                if (ws.isAlive === false) return ws.terminate();
-            
-                ws.send(JSON.stringify(locationData));
-            });
-
-            await newLocation.save();
-            console.log('Ubicación almacenada en la base de datos:', newLocation);
-            socket.write('Recibido y almacenado en la base de datos!');
-        } catch (error) {
-            console.error('Error al guardar la ubicación:', error);
-            socket.write('Error al almacenar en la base de datos.');
-        }
-    });
-
-    socket.on('close', () => {
-        console.log('Comunicación finalizada');
-    });
-
-    socket.on('error', (err) => {
-        console.log(err.message);
-    });
+server.listen(8002, () => {
+  console.log("Server TCP listening on port", server.address().port);
 });
-
-app.use('/', express.static('public'));
-server.listen(8000, () => {
-    console.log("Server TCP listening on port", server.address().port);
-});
-
 
 httpServer.listen(8001, () => {
-    console.log("Server HTTP listening on port", 8001);
+  console.log("Server HTTP listening on port", 8001);
 });
-  
-  
