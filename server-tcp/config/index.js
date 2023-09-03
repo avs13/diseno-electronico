@@ -1,8 +1,8 @@
 require("dotenv").config();
 const config = {
   serversPorts: {
-    http: process.env.PORT_HTTP | 80,
-    tcp:  process.env.PORT_TCP | 81
+    http: process.env.PORT_HTTP || 80,
+    tcp:  process.env.PORT_TCP || 81
   },
   db: {
     user: process.env.DB_USER,
