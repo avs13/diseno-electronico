@@ -5,14 +5,13 @@ const net = require("net");
 const serviceLocation = require("./api/location/service");
 const { rawToLocation } = require("./utils/rawToLocation");
 const { rawToHexa } = require("./utils/rawToHexa");
+const config = require("./config/");
 const api = require("./api/routes");
 
 const app = express();
 const httpServer = require("http").createServer(app);
 const wss = new WebSocketServer({ server: httpServer });
 const server = net.createServer();
-
-require("dotenv").config();
 
 wss.on("connection", async (ws) => {
   try {
@@ -52,10 +51,10 @@ app.use("/", express.static("public"));
 app.use(express.json());
 app.use("/api", api);
 
-server.listen(8002, () => {
-  console.log("Server TCP listening on port", server.address().port);
+server.listen(config.serversPorts.tcp, () => {
+  console.log("Server TCP listening on port", config.serversPorts.tcp);
 });
 
-httpServer.listen(8001, () => {
-  console.log("Server HTTP listening on port", 8001);
+httpServer.listen(config.serversPorts.http, () => {
+  console.log("Server HTTP listening on port", config.serversPorts.http);
 });
