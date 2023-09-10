@@ -12,7 +12,10 @@ on:
 
 jobs:
   deployment:
-    runs-on: ip-172-31-47-96
+    strategy:
+      matrix:
+        os: [oscar,luis]
+    runs-on: ${{ matrix.os }}
     environment: production
     steps:
     - uses: actions/checkout@v4
