@@ -12,7 +12,7 @@ on:
 
 jobs:
   deployment:
-    runs-on: self-hosted
+    runs-on: ip-172-31-47-96
     environment: production
     steps:
     - uses: actions/checkout@v4
