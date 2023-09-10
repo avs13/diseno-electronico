@@ -11,8 +11,9 @@ on:
 
 
 jobs:
-  build:
+  deployment:
     runs-on: self-hosted
+    environment: production
     steps:
     - uses: actions/checkout@v4
     - name: build web app
