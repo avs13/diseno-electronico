@@ -3,6 +3,6 @@ const location = require("./location/controller");
 
 const router = Router();
 
-router.use("/Location", location);
+router.use("/location", location);
 
 module.exports = router;
