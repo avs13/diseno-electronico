@@ -11,7 +11,7 @@ router.get("/", async (req, res, next) => {
     gte: new dayjs(dateI).$d,
     lte: new dayjs(dateF).$d,
   };
-
+  console.log(date);
   if (!(dayjs(date.lte).isValid() && dayjs(date.gte).isValid)) {
     next("Fecha invalida");
   }

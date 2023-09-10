@@ -1,7 +1,7 @@
 const { WebSocketServer } = require("ws");
 const express = require("express");
 const net = require("net");
-
+const cors = require("cors");
 const serviceLocation = require("./api/location/service");
 const { rawToLocation } = require("./utils/rawToLocation");
 const { rawToHexa } = require("./utils/rawToHexa");
@@ -9,10 +9,12 @@ const config = require("./config/");
 const api = require("./api/routes");
 
 const app = express();
+
 const httpServer = require("http").createServer(app);
 const wss = new WebSocketServer({ server: httpServer });
 const server = net.createServer();
 
+app.use(cors());
 wss.on("connection", async (ws) => {
   try {
     const location = await serviceLocation.getLast();
