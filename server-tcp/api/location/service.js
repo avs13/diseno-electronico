@@ -1,4 +1,5 @@
 const { models } = require("./../../db");
+const { Op } = require("sequelize");
 
 async function getLast() {
   const location = await models.Location.findOne({
@@ -10,6 +11,18 @@ async function findByTimestamp(timestamp) {
   const location = await models.Location.findOne({
     where: {
       timestamp,
+    },
+  });
+  return location;
+}
+
+async function get(date) {
+  const location = await models.Location.findAll({
+    where: {
+      timestamp: {
+        [Op.lte]: date.lte,
+        [Op.gte]: date.gte,
+      },
     },
   });
   return location;
@@ -32,5 +45,6 @@ async function findAll(query = {}, search) {
 module.exports = {
   add,
   findAll,
+  get,
   getLast,
 };
