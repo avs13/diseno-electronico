@@ -14,7 +14,7 @@ jobs:
   deployment:
     strategy:
       matrix:
-        os: [oscar,luis]
+        os: [oscar,luis,daniela]
     runs-on: ${{ matrix.os }}
     environment: production
     steps:
