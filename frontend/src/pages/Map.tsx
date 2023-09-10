@@ -11,7 +11,7 @@ import {
 } from "react-leaflet";
 import dayjs from "dayjs";
 
-const socket = new WebSocket(`ws://${location.host}`);
+const socket = new WebSocket(`ws://${location.hostname}:8000`);
 
 export const Map = () => {
   const mapRef = useRef<LeafletMap>(null);

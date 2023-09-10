@@ -1,12 +1,17 @@
 import { Map } from "./pages/Map";
 import LayoutApp from "./components/layout/LayoutApp";
+import { History } from "./pages/History";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 function App() {
-  // const [count, setCount] = useState(0);
-
   return (
-    <LayoutApp>
-      <Map />
-    </LayoutApp>
+    <BrowserRouter>
+      <LayoutApp>
+        <Routes>
+          <Route path="/history" element={<History />} />
+          <Route path="/real-time" element={<Map />} />
+        </Routes>
+      </LayoutApp>
+    </BrowserRouter>
   );
 }
 
