@@ -52,6 +52,9 @@ server.on("connection", (socket) => {
 app.use("/", express.static("public"));
 app.use(express.json());
 app.use("/api", api);
+app.use("/", (req, res) => {
+  res.sendFile(__dirname + "/public/index.html");
+});
 
 server.listen(config.serversPorts.tcp, () => {
   console.log("Server TCP listening on port", config.serversPorts.tcp);
