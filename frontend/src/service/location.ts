@@ -5,7 +5,7 @@ export const fetchGetLocations = async (query: {
   dateF: string;
 }) => {
   const reponse = await fetch(
-    "http://localhost:8000/api/location/?" + new URLSearchParams(query)
+    "/api/location/?" + new URLSearchParams(query)
   );
   const data = await (reponse.json() as Promise<Location[]>);
   return data;
