@@ -7,8 +7,13 @@ function App() {
     <BrowserRouter>
       <LayoutApp>
         <Routes>
+          
           <Route path="/history" element={<History />} />
           <Route path="/real-time" element={<Map />} />
+          <Route
+        path="*"
+        element={<Navigate to="/real-time" replace />}
+    /> 
         </Routes>
       </LayoutApp>
     </BrowserRouter>
