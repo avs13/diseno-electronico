@@ -11,10 +11,6 @@ router.get("/", async (req, res, next) => {
     gte: new dayjs(dateI).$d,
     lte: new dayjs(dateF).$d,
   };
-<<<<<<< HEAD
-=======
-  console.log(date);
->>>>>>> b327192 (Configuracion endpoint ubiaciones)
   if (!(dayjs(date.lte).isValid() && dayjs(date.gte).isValid)) {
     next("Fecha invalida");
   }
