@@ -5,15 +5,16 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 
 jobs:
   deployment:
     strategy:
       matrix:
+<<<<<<< HEAD
         os: [oscar,luis,daniela]
     runs-on: ${{ matrix.os }}
     environment: production
@@ -47,3 +48,38 @@ jobs:
         npm ci
         pm2 start ecosystem.config.js
         pm2 save
+=======
+        os: [oscar, luis, daniela]
+    runs-on: ${{ matrix.os }}
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: build web app
+        working-directory: ./frontend
+        run: |
+          npm ci
+          npm run build
+          cp -r ./dist/* ../server-tcp/public
+      - name: run server
+        working-directory: ./server-tcp
+        env:
+          DB_HOST: ${{secrets.DB_HOST}}
+          DB_PASSWORD: ${{secrets.DB_PASSWORD}}
+          PORT_HTTP: ${{vars.PORT_HTTP}}
+          DB_USER: ${{vars.DB_USER}}
+          PORT_TCP: ${{vars.PORT_TCP}}
+          DB_PORT: ${{vars.DB_PORT}}
+          DB_NAME: ${{secrets.DB_NAME}}
+        run: |
+          echo "
+          PORT_TCP = $PORT_TCP 
+          PORT_HTTP = $PORT_HTTP
+          DB_USER = '$DB_USER'
+          DB_PASSWORD = '$DB_PASSWORD'
+          DB_HOST = '$DB_HOST'
+          DB_NAME = '$DB_NAME'
+          DB_PORT = $DB_PORT " > .env
+          npm ci
+          pm2 start ecosystem.config.js
+          pm2 save
+>>>>>>> develop

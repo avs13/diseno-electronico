@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { NavLink } from "react-router-dom";
 
 interface Props {
   children: React.ReactNode;
@@ -6,9 +7,8 @@ interface Props {
 
 const items: Item[] = [
   {
-    to: "/ubicacion-actual",
+    to: "/real-time",
     label: "Ubicacion Actual",
-
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -22,6 +22,26 @@ const items: Item[] = [
           strokeLinecap="round"
           strokeLinejoin="round"
           d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6"
+        />
+      </svg>
+    ),
+  },
+  {
+    to: "/history",
+    label: "Historia",
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={1.5}
+        stroke="currentColor"
+        className="w-6 h-6 mr-1 inline-block"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
         />
       </svg>
     ),
@@ -45,7 +65,6 @@ interface INav {
 
 function Nav({ items }: INav) {
   const [isOpen, setIsOpen] = useState(true);
-  console.log(isOpen);
   return (
     <nav
       className={`bg-gray-900 h-full transition  text-white text-sm ${
@@ -72,12 +91,18 @@ function Nav({ items }: INav) {
 
       <ul>
         {items.map((item) => (
-          <a key={item.to} href={item.to}>
-            <li className=" text-white hover:text-gray-100 transition py-3 pl-5 active:bg-blue-500 active:rounded-lg bg-gray-800 rounded-lg">
-              {item.icon && item.icon}
-              {isOpen && item.label}
-            </li>
-          </a>
+          <NavLink to={item.to} key={item.to}>
+            {({ isActive }) => (
+              <li
+                className={` text-white hover:text-gray-100 transition py-3 pl-5 active:bg-blue-500 active:rounded-lgrounded-lg ${
+                  isActive ? "bg-gray-800" : ""
+                }`}
+              >
+                {item.icon && item.icon}
+                {isOpen && item.label}
+              </li>
+            )}
+          </NavLink>
         ))}
       </ul>
     </nav>
