@@ -5,34 +5,44 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
-  build:
-
-    runs-on: self-hosted
-
+  deployment:
     strategy:
       matrix:
-        node-version: [18.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
+        os: [oscar, luis, daniela]
+    runs-on: ${{ matrix.os }}
+    environment: production
     steps:
-    - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: npm ci
-    - run: cd frontend
-    - run: npm run build
-    - run: cp -r ./dist/* ../server-tcp/public
-    - run: cd ../server-tcp
-    - run: rm -r public/.gitkeep
-    - run: cp example.env .envrm
-    - run: npm install
-    - run: pm2 start ecosystem.config.js
-    - run: pm2 startup
+      - uses: actions/checkout@v4
+      - name: build web app
+        working-directory: ./frontend
+        run: |
+          npm ci
+          npm run build
+          cp -r ./dist/* ../server-tcp/public
+      - name: run server
+        working-directory: ./server-tcp
+        env:
+          DB_HOST: ${{secrets.DB_HOST}}
+          DB_PASSWORD: ${{secrets.DB_PASSWORD}}
+          PORT_HTTP: ${{vars.PORT_HTTP}}
+          DB_USER: ${{vars.DB_USER}}
+          PORT_TCP: ${{vars.PORT_TCP}}
+          DB_PORT: ${{vars.DB_PORT}}
+          DB_NAME: ${{secrets.DB_NAME}}
+        run: |
+          echo "
+          PORT_TCP = $PORT_TCP 
+          PORT_HTTP = $PORT_HTTP
+          DB_USER = '$DB_USER'
+          DB_PASSWORD = '$DB_PASSWORD'
+          DB_HOST = '$DB_HOST'
+          DB_NAME = '$DB_NAME'
+          DB_PORT = $DB_PORT " > .env
+          npm ci
+          pm2 start ecosystem.config.js
+          pm2 save
