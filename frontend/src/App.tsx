@@ -1,7 +1,7 @@
 import { Map } from "./pages/Map";
 import LayoutApp from "./components/layout/LayoutApp";
 import { History } from "./pages/History";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 function App() {
   return (
     <BrowserRouter>
