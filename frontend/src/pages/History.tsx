@@ -9,8 +9,8 @@ import {
   Marker,
   Polyline,
 } from "react-leaflet";
-
-import { LocationHistory, fetchGetLocations } from "./../service";
+import { LocationHistory } from "./../types";
+import { fetchGetLocations } from "./../service";
 import { buildRoutes } from "./../utils";
 import { iconEnd, iconStart, MagnifyinGlass } from "../components/icons";
 
