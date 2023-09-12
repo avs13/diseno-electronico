@@ -1,6 +1,7 @@
-import { fetchGetLocations } from "./../service";
+import { Map as LeafletMap } from "leaflet";
 import { useRef, useState } from "react";
-import { LatLngTuple, Map as LeafletMap } from "leaflet";
+import loading from "./../assets/loading.gif";
+import dayjs from "dayjs";
 import {
   MapContainer,
   TileLayer,
@@ -8,31 +9,40 @@ import {
   Marker,
   Polyline,
 } from "react-leaflet";
-import dayjs from "dayjs";
+
+import { LocationHistory, fetchGetLocations } from "./../service";
+import { buildRoutes } from "./../utils";
+import { iconEnd, iconStart, MagnifyinGlass } from "../components/icons";
 
 export const History = () => {
   const mapRef = useRef<LeafletMap>(null);
-  const [poly, setPoly] = useState<LatLngTuple[]>([]);
+  const [locationHistory, setLocationHistory] = useState<LocationHistory>({
+    startDate: new Date(),
+    endDate: new Date(),
+    routes: [],
+  });
+  const [searching, setSearching] = useState(false);
   const [startDate, setStartDate] = useState(dayjs().format("YYYY-MM-DD"));
   const [startTime, setStartTime] = useState("00:01");
   const [endDate, setEndDate] = useState<string>(dayjs().format("YYYY-MM-DD"));
   const [endTime, setEndTime] = useState<string>("23:59");
-  const [marker, setMarker] = useState<LatLngTuple>([0, 0]);
 
   const onSearchHistory = async () => {
     if (dayjs(startDate).isValid() && dayjs(endDate).isValid()) {
+      setSearching(true);
       const data = await fetchGetLocations({
         dateI: startDate + "" + startTime,
         dateF: endDate + " " + endTime,
       });
       if (data.length > 0) {
-        const locationTuples: LatLngTuple[] = data.map((location) => [
-          location.latitude,
-          location.longitude,
-        ]);
-        setPoly(locationTuples);
-        setMarker(locationTuples[locationTuples.length - 1]);
+        setLocationHistory(buildRoutes([...data]));
+      } else {
+        setLocationHistory({
+          ...locationHistory,
+          routes: [],
+        });
       }
+      setSearching(false);
     }
   };
 
@@ -101,45 +111,107 @@ export const History = () => {
             className="bg-gray-800 hover:bg-gray-900 active:bg-gray-700 transition p-1 rounded-md text-white flex px-2 py-1 items-center"
             onClick={onSearchHistory}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="w-5 h-5"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
-              />
-            </svg>
+            <MagnifyinGlass />
             Buscar
           </button>
         </form>
       </div>
 
-      <MapContainer
-        className="w-full h-full"
-        ref={mapRef}
-        center={[10.9731648, -74.8069377]}
-        zoom={12}
-        scrollWheelZoom={false}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        <Marker position={marker}>
-          <Popup>{`ultima ubicacion: ${marker[0].toFixed(
-            5
-          )} , ${marker[1].toFixed(5)}`}</Popup>
-        </Marker>
-        {poly.length >= 2 && (
-          <Polyline positions={poly} color="red" lineCap="butt" />
-        )}
-      </MapContainer>
+      <div className="h-full flex gap-2">
+        <div className="w-[220px] text-sm">
+          <p className="font-semibold ">Recorridos disponibles</p>
+          {searching && (
+            <div className="flex justify-center mt-2">
+              <img src={loading} width="40" />
+            </div>
+          )}
+          {locationHistory.routes.length == 0 &&
+            searching == false &&
+            "No hay recorridos disponibles"}
+          {searching == false &&
+            locationHistory.routes.length > 0 &&
+            locationHistory.routes.map((route) => (
+              <div
+                className="mb-2 pl-1 border hover:bg-slate-100 cursor-pointer "
+                onClick={() => {
+                  if (mapRef.current) {
+                    mapRef.current.setView([
+                      route.locations[route.locations.length - 1][0],
+                      route.locations[route.locations.length - 1][1],
+                    ]);
+                    mapRef.current.setZoom(14);
+                  }
+                }}
+              >
+                <p>
+                  <span className="italic font-semibold">Fecha: </span>
+                  {dayjs(route.startDate).format("DD/MM/YYYY MM:ss  a")}
+                </p>
+                <p>
+                  <span className="italic font-semibold">Inicio</span>
+                  {` ${route.locations[0][0].toFixed(
+                    4
+                  )} , ${route.locations[0][1].toFixed(4)}`}
+                </p>
+                <p>
+                  <span className="italic font-semibold">Final:</span>
+                  {` ${route.locations[route.locations.length - 1][0].toFixed(
+                    4
+                  )} , ${route.locations[route.locations.length - 1][1].toFixed(
+                    4
+                  )}`}
+                </p>
+                <p>
+                  <span className="italic font-semibold">Tiempo: </span>
+                  {route.time + " min"}
+                </p>
+              </div>
+            ))}
+        </div>
+        <MapContainer
+          className="w-full h-full"
+          ref={mapRef}
+          center={[10.9731648, -74.8069377]}
+          zoom={12}
+          scrollWheelZoom={false}
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+
+          {locationHistory.routes.map((route) => (
+            <>
+              <Marker position={route.locations[0]} icon={iconStart}>
+                <Popup>{`${
+                  route.routeName
+                } Primera ubicacion: ${route.locations[0][0].toFixed(
+                  5
+                )} , ${route.locations[0][1].toFixed(5)}`}</Popup>
+              </Marker>
+              <Marker
+                position={route.locations[route.locations.length - 1]}
+                icon={iconEnd}
+              >
+                <Popup>{`${route.routeName} Ultima ubicacion: ${route.locations[
+                  route.locations.length - 1
+                ][0].toFixed(5)} , ${route.locations[
+                  route.locations.length - 1
+                ][1].toFixed(5)}`}</Popup>
+              </Marker>
+            </>
+          ))}
+
+          {locationHistory.routes.map((route) => (
+            <Polyline
+              key={route.routeName}
+              positions={route.locations}
+              color="red"
+              lineCap="butt"
+            />
+          ))}
+        </MapContainer>
+      </div>
     </div>
   );
 };
