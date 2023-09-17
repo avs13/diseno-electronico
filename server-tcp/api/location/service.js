@@ -36,6 +36,7 @@ async function get(query) {
 
   const location = await models.Location.findAll({
     where: where,
+    order: [["timestamp", "ASC"]],
   });
   return location;
 }
