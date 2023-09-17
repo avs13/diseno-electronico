@@ -16,7 +16,7 @@ const socket = new WebSocket(`ws://${location.host}`);
 export const Map = () => {
   const mapRef = useRef<LeafletMap>(null);
   const [poly, setPoly] = useState<LatLngTuple[]>([]);
-  const [trace, setTrace] = useState(false);
+  const [trace, setTrace] = useState(true);
   const [position, setPosition] = useState<LatLngTuple>([0, 0]);
   const [location, setLocation] = useState<Location>({
     longitude: 10.9731648,
