@@ -64,7 +64,7 @@ interface INav {
 }
 
 function Nav({ items }: INav) {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   return (
     <nav
       className={`bg-gray-900 h-full transition  text-white text-sm ${

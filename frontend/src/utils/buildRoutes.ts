@@ -14,7 +14,11 @@ export function buildRoutes(
     routes: [],
   };
 
-  const routes = splitRangeLocationByDateAndSpeed(location, time, maxSpeed);
+  const routes = splitRangeLocationByDateAndSpeed(
+    location,
+    time,
+    maxSpeed
+  ).filter((route) => route.length > 2);
 
   locationHistory.routes = routes.map((route, index) => {
     return {
