@@ -5,20 +5,29 @@ const locationService = require("./service");
 const router = Router();
 
 router.get("/", async (req, res, next) => {
-  const { dateI = new dayjs(0).$d, dateF = new dayjs().$d } = req.query;
+  const {
+    dateI = new dayjs(0).$d,
+    dateF = new dayjs().$d,
+    acurracyDegree: acurracy,
+    longitude,
+    latitude,
+  } = req.query;
 
-  const date = {
+  const query = {
     gte: new dayjs(dateI).$d,
     lte: new dayjs(dateF).$d,
+    acurracy: parseFloat(acurracy),
+    latitude: parseFloat(latitude),
+    longitude: parseFloat(longitude),
   };
-  if (!(dayjs(date.lte).isValid() && dayjs(date.gte).isValid)) {
+  if (!(dayjs(query.lte).isValid() && dayjs(query.gte).isValid)) {
     next("Fecha invalida");
   }
-  if (date.gte > date.lte) {
+  if (query.gte > query.lte) {
     next("rango no valido");
   }
   try {
-    const location = await locationService.get(date);
+    const location = await locationService.get(query);
     res.send(location);
   } catch (error) {
     next(error);

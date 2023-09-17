@@ -16,14 +16,26 @@ async function findByTimestamp(timestamp) {
   return location;
 }
 
-async function get(date) {
-  const location = await models.Location.findAll({
-    where: {
-      timestamp: {
-        [Op.lte]: date.lte,
-        [Op.gte]: date.gte,
-      },
+async function get(query) {
+  const where = {
+    timestamp: {
+      [Op.lte]: query.lte,
+      [Op.gte]: query.gte,
     },
+  };
+  if (!!query.acurracy && query.acurracy > 0) {
+    where.longitude = {
+      [Op.gte]: query.longitude - query.acurracy,
+      [Op.lte]: query.longitude + query.acurracy,
+    };
+    where.latitude = {
+      [Op.gte]: query.latitude - query.acurracy,
+      [Op.lte]: query.latitude + query.acurracy,
+    };
+  }
+
+  const location = await models.Location.findAll({
+    where: where,
   });
   return location;
 }
