@@ -1,8 +1,7 @@
 import dayjs from "dayjs";
-
+import isoWeek from "dayjs/plugin/isoWeek";
 import { ToggleButton } from "../../components/ToggleButton";
 import { MagnifyinGlass } from "../../components/icons";
-
 interface RangeDate {
   startDate: string;
   startTime: string;
@@ -18,6 +17,7 @@ interface Props {
   setSearchByArea: (value: boolean) => void;
   setArea: (value: number) => void;
 }
+dayjs.extend(isoWeek);
 
 export const Search = ({
   area,
@@ -107,7 +107,9 @@ export const Search = ({
                     setSearchByArea(target.checked);
                     setRangeDate({
                       ...rangeDate,
-                      startDate: dayjs().day(1).format("YYYY-MM-DD"),
+                      startDate: dayjs()
+                        .startOf("isoWeek")
+                        .format("YYYY-MM-DD"),
                     });
                   }}
                   value={searchByArea}
