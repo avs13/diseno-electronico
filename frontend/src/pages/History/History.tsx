@@ -92,7 +92,7 @@ export const History = () => {
       </div>
 
       <div className="h-full flex gap-2">
-        <div className="w-[220px] text-sm max-h-[500] overflow-auto ">
+        <div className="w-[220px] text-sm max-h-[650px] overflow-auto ">
           <p className="font-semibold ">Recorridos disponibles</p>
           {searching && (
             <div className="flex justify-center mt-2">
