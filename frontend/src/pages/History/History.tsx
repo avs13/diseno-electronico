@@ -56,8 +56,9 @@ export const History = () => {
       }
       const data = await fetchGetLocations(query);
       if (data.length > 0) {
-        setLocationHistory(buildRoutes([...data]));
-        setSelection(0);
+        const locationHistory = buildRoutes([...data]);
+        setLocationHistory(locationHistory);
+        setSelection(locationHistory.routes.length);
       } else {
         setLocationHistory({
           ...locationHistory,
