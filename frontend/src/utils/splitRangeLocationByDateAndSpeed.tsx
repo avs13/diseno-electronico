@@ -19,7 +19,8 @@ export function splitRangeLocationByDateAndSpeed(
       routes.push(route);
       route = [location];
     } else if (
-      calculateDistance(beforeLocation, location) / current.diff(before, "s") >
+      calculateDistance(beforeLocation, location) /
+        Math.abs(current.diff(before, "s")) >
       maxSpeed
     ) {
       routes.push(route);
