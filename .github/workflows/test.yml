@@ -12,11 +12,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Instalacion dependencias
-      - uses: actions/setup-node@v3
+      - name: Instalacion Node
+        uses: actions/setup-node@v3
         with:
           node-version: 18.x
-      - uses: oven-sh/setup-bun@v1
+      - name: Instalacion Bun
+        uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
       - name: build web app
@@ -25,25 +26,9 @@ jobs:
           npm ci
           npm run build
           cp -r ./dist/* ../server-tcp/public
-      - name: run server
+      - name: build server
         working-directory: ./server-tcp
-        env:
-          DB_HOST: ${{secrets.DB_HOST}}
-          DB_PASSWORD: ${{secrets.DB_PASSWORD}}
-          PORT_HTTP: ${{vars.PORT_HTTP}}
-          DB_USER: ${{vars.DB_USER}}
-          PORT_TCP: ${{vars.PORT_TCP}}
-          DB_PORT: ${{vars.DB_PORT}}
-          DB_NAME: ${{secrets.DB_NAME}}
         run: |
-          echo "
-          PORT_TCP = $PORT_TCP 
-          PORT_HTTP = $PORT_HTTP
-          DB_USER = '$DB_USER'
-          DB_PASSWORD = '$DB_PASSWORD'
-          DB_HOST = '$DB_HOST'
-          DB_NAME = '$DB_NAME'
-          DB_PORT = $DB_PORT " > .env
           bun i
           bun install pg-hstore
           bun build ./server.js --compile --outfile mycli
