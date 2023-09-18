@@ -75,11 +75,15 @@ export const Search = ({
                 type="time"
                 value={rangeDate.startTime}
                 max={rangeDate.endTime}
-                onChange={({ target }) =>
-                  setRangeDate({
-                    ...rangeDate,
-                    startTime: target.value,
-                  })
+                onChange={({ target }) => {
+                  if(target.checked){
+                    setRangeDate({
+                      ...rangeDate,
+                      startTime: target.value,
+                    })
+                  }
+                }
+                  
                 }
               />
             </div>
@@ -105,12 +109,14 @@ export const Search = ({
                 <ToggleButton
                   onChange={({ target }) => {
                     setSearchByArea(target.checked);
-                    setRangeDate({
-                      ...rangeDate,
-                      startDate: dayjs()
-                        .startOf("isoWeek")
-                        .format("YYYY-MM-DD"),
-                    });
+                    if(target.value){
+                      setRangeDate({
+                        ...rangeDate,
+                        startDate: dayjs()
+                          .startOf("isoWeek")
+                          .format("YYYY-MM-DD"),
+                      });
+                    }
                   }}
                   value={searchByArea}
                 />
