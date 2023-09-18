@@ -76,12 +76,10 @@ export const Search = ({
                 value={rangeDate.startTime}
                 max={rangeDate.endTime}
                 onChange={({ target }) => {
-                  if(target.checked){
                     setRangeDate({
                       ...rangeDate,
                       startTime: target.value,
                     })
-                  }
                 }
                   
                 }
