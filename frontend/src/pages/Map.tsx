@@ -13,22 +13,7 @@ import dayjs from "dayjs";
 
 const socket = new WebSocket(`ws://${location.host}`);
 
-export const Map = () => {
-  const mapRef = useRef<LeafletMap>(null);
-  const [poly, setPoly] = useState<LatLngTuple[]>([]);
-  const [trace, setTrace] = useState(true);
-  const [position, setPosition] = useState<LatLngTuple>([0, 0]);
-  const [location, setLocation] = useState<Location>({
-    longitude: 10.9731648,
-    latitude: -74.8069377,
-    timestamp: 0,
-  });
 
-  useEffect(() => {
-    socket.addEventListener("message", (event) => {
-      actualizarDatos(JSON.parse(event.data));
-    });
-  }, []);
 
   const actualizarDatos = (datos: Location) => {
     if (isValidCoordinates(datos)) {
