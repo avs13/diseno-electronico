@@ -20,10 +20,8 @@ export const History = () => {
     routes: [],
   });
   const [rangeDate, setRangeDate] = useState({
-    startDate: dayjs().format("YYYY-MM-DD"),
-    startTime: "00:01",
-    endDate: dayjs().format("YYYY-MM-DD"),
-    endTime: "23:59",
+    startDate: dayjs().startOf("day").format("YYYY-MM-DDTHH:mm"),
+    endDate: dayjs().endOf("day").format("YYYY-MM-DDTHH:mm"),
   });
   const [position, setPosition] = useState({
     lat: 0,
@@ -41,13 +39,13 @@ export const History = () => {
     ) {
       setSearching(true);
       let query = {
-        dateI: rangeDate.startDate + "" + rangeDate.startTime,
-        dateF: rangeDate.endDate + " " + rangeDate.endTime,
+        dateI: rangeDate.startDate,
+        dateF: rangeDate.endDate,
       };
       if (searchByArea) {
         query = {
-          dateI: rangeDate.startDate + "" + rangeDate.startTime,
-          dateF: rangeDate.endDate + " " + rangeDate.endTime,
+          dateI: rangeDate.startDate,
+          dateF: rangeDate.endDate,
           //@ts-ignore
           acurracyDegree: acurrancyMetersToDegrees(area),
           longitude: position.lng,
@@ -69,6 +67,12 @@ export const History = () => {
       setSearching(false);
     }
   };
+
+  useEffect(() => {
+    if (searchByArea === true) {
+      onSearchHistory();
+    }
+  }, [position, area]);
 
   useEffect(() => {
     setLocationHistory({
