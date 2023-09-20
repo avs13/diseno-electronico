@@ -69,6 +69,12 @@ export const History = () => {
   };
 
   useEffect(() => {
+    if (searchByArea === true) {
+      onSearchHistory();
+    }
+  }, [position, area]);
+
+  useEffect(() => {
     setLocationHistory({
       startDate: new Date(),
       endDate: new Date(),

@@ -44,7 +44,6 @@ export const Search = ({
                 max={rangeDate.endDate}
                 value={rangeDate.startDate}
                 onChange={({ target }) => {
-                  console.log(target.value);
                   setRangeDate({
                     ...rangeDate,
                     startDate: target.value,
