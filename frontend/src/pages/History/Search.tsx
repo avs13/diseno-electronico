@@ -2,11 +2,10 @@ import dayjs from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
 import { ToggleButton } from "../../components/ToggleButton";
 import { MagnifyinGlass } from "../../components/icons";
+
 interface RangeDate {
   startDate: string;
-  startTime: string;
   endDate: string;
-  endTime: string;
 }
 interface Props {
   searchByArea: boolean;
@@ -41,60 +40,29 @@ export const Search = ({
             <div>
               <span className="font-semibold">Fecha inicio: </span>
               <input
-                type="date"
+                type="datetime-local"
                 max={rangeDate.endDate}
                 value={rangeDate.startDate}
-                onChange={({ target }) =>
+                onChange={({ target }) => {
+                  console.log(target.value);
                   setRangeDate({
                     ...rangeDate,
                     startDate: target.value,
-                  })
-                }
+                  });
+                }}
               />
             </div>
             <div>
               <span className="font-semibold">Fecha final: </span>
               <input
-                type="date"
-                value={dayjs(rangeDate.endDate).format("YYYY-MM-DD")}
+                type="datetime-local"
+                value={rangeDate.endDate}
                 min={rangeDate.startDate ?? ""}
-                max={dayjs().format("YYYY-MM-DD")}
+                max={dayjs().endOf("day").format("YYYY-MM-DDTHH:mm")}
                 onChange={({ target }) =>
                   setRangeDate({
                     ...rangeDate,
                     endDate: target.value,
-                  })
-                }
-              />
-            </div>
-          </div>
-          <div>
-            <div>
-              <span className="font-semibold">Hora inicio:</span>
-              <input
-                type="time"
-                value={rangeDate.startTime}
-                max={rangeDate.endTime}
-                onChange={({ target }) => {
-                    setRangeDate({
-                      ...rangeDate,
-                      startTime: target.value,
-                    })
-                }
-                  
-                }
-              />
-            </div>
-
-            <div>
-              <span className="font-semibold">Hora final:</span>
-              <input
-                type="time"
-                value={rangeDate.endTime}
-                onChange={({ target }) =>
-                  setRangeDate({
-                    ...rangeDate,
-                    endTime: target.value,
                   })
                 }
               />
@@ -107,12 +75,12 @@ export const Search = ({
                 <ToggleButton
                   onChange={({ target }) => {
                     setSearchByArea(target.checked);
-                    if(target.value){
+                    if (target.value) {
                       setRangeDate({
                         ...rangeDate,
                         startDate: dayjs()
                           .startOf("isoWeek")
-                          .format("YYYY-MM-DD"),
+                          .format("YYYY-MM-DDTHH:mm"),
                       });
                     }
                   }}
