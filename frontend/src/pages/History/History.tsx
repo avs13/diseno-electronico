@@ -11,6 +11,7 @@ import { LocationHistory } from "./../../types";
 import { fetchGetLocations } from "./../../service";
 import { acurrancyMetersToDegrees, buildRoutes } from "./../../utils";
 import { RouteMarker } from "./RouteMarker";
+import { RouteCard } from "./RouteCard";
 
 export const History = () => {
   const mapRef = useRef<LeafletMap>(null);
@@ -110,14 +111,20 @@ export const History = () => {
           {searchByArea && locationHistory.routes.length > 0 && (
             <p>{`Recorridos Disponibles ${locationHistory.routes.length}`}</p>
           )}
+          {searchByArea &&
+            locationHistory.routes.length > 0 &&
+            selection > 0 && (
+              <RouteCard route={locationHistory.routes[selection - 1]} />
+            )}
+
           {!searchByArea && (
             <>
               {!searching &&
                 locationHistory.routes.length > 0 &&
                 locationHistory.routes.map((route, index) => (
-                  <div
+                  <RouteCard
+                    route={route}
                     key={index}
-                    className="mb-2 pl-1 border hover:bg-slate-100 cursor-pointer "
                     onClick={() => {
                       if (mapRef.current) {
                         mapRef.current.setView([
@@ -127,30 +134,7 @@ export const History = () => {
                         mapRef.current.setZoom(14);
                       }
                     }}
-                  >
-                    <p>
-                      <span className="italic font-semibold">Fecha: </span>
-                      {dayjs(route.startDate).format("DD/MM/YYYY MM:ss  a")}
-                    </p>
-                    <p>
-                      <span className="italic font-semibold">Inicio</span>
-                      {` ${route.locations[0][0].toFixed(
-                        4
-                      )} , ${route.locations[0][1].toFixed(4)}`}
-                    </p>
-                    <p>
-                      <span className="italic font-semibold">Final:</span>
-                      {` ${route.locations[
-                        route.locations.length - 1
-                      ][0].toFixed(4)} , ${route.locations[
-                        route.locations.length - 1
-                      ][1].toFixed(4)}`}
-                    </p>
-                    <p>
-                      <span className="italic font-semibold">Tiempo: </span>
-                      {route.time + " min"}
-                    </p>
-                  </div>
+                  />
                 ))}
             </>
           )}
