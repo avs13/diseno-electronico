@@ -7,8 +7,28 @@ interface Props {
 
 const items: Item[] = [
   {
+    to: "/tutorial",
+    label: "Inicio",
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={1.5}
+        stroke="currentColor"
+        className="w-6 h-6 mr-1 inline-block"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M12 2L3 9V21h18V9L12 2zm0 2.449l4 3.5V20h-8v-11.051l4-3.5z"
+        />
+      </svg>
+    ),
+  },
+  {
     to: "/real-time",
-    label: "Ubicacion Actual",
+    label: "Ubicación Actual",
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -28,7 +48,7 @@ const items: Item[] = [
   },
   {
     to: "/history",
-    label: "Historia",
+    label: "Históricos",
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"

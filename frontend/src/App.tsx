@@ -9,6 +9,7 @@ function App() {
         <Routes>
           
           <Route path="/history" element={<History />} />
+          <Route path="/tutorial" element={<Tutorial />} />
           <Route path="/real-time" element={<Map />} />
           <Route
         path="*"
