@@ -1,6 +1,6 @@
 import React from 'react';
 
-const WelcomePage: React.FC = () => {
+export const WelcomePage: React.FC = () => {
   return (
     <div className="welcome-page">
       <h1>Le damos la bienvenida a la central de MY GPS App</h1>
@@ -33,4 +33,3 @@ const WelcomePage: React.FC = () => {
   );
 }
 
-export default WelcomePage;
