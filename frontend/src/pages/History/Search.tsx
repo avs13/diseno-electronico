@@ -74,14 +74,7 @@ export const Search = ({
                 <ToggleButton
                   onChange={({ target }) => {
                     setSearchByArea(target.checked);
-                    if (target.value) {
-                      setRangeDate({
-                        ...rangeDate,
-                        startDate: dayjs()
-                          .startOf("isoWeek")
-                          .format("YYYY-MM-DDTHH:mm"),
-                      });
-                    }
+                    
                   }}
                   value={searchByArea}
                 />
