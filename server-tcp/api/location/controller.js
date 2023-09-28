@@ -8,7 +8,8 @@ router.get("/", async (req, res, next) => {
   const {
     dateI = new dayjs(0).$d,
     dateF = new dayjs().$d,
-    acurracyDegree: acurracy,
+    acurracyDegreeLat: acurracyLat,
+    acurracyDegreeLng: acurracyLng,
     longitude,
     latitude,
   } = req.query;
@@ -16,10 +17,12 @@ router.get("/", async (req, res, next) => {
   const query = {
     gte: new dayjs(dateI).$d,
     lte: new dayjs(dateF).$d,
-    acurracy: parseFloat(acurracy),
+    acurracyLat: parseFloat(acurracyLat),
+    acurracyLng: parseFloat(acurracyLng),
     latitude: parseFloat(latitude),
     longitude: parseFloat(longitude),
   };
+
   if (!(dayjs(query.lte).isValid() && dayjs(query.gte).isValid)) {
     next("Fecha invalida");
   }

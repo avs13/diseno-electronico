@@ -23,14 +23,19 @@ async function get(query) {
       [Op.gte]: query.gte,
     },
   };
-  if (!!query.acurracy && query.acurracy > 0) {
+  if (
+    !!query.acurracyLng &&
+    !!query.acurracyLat &&
+    query.acurracyLat > 0 &&
+    query.acurracyLng > 0
+  ) {
     where.longitude = {
-      [Op.gte]: query.longitude - query.acurracy,
-      [Op.lte]: query.longitude + query.acurracy,
+      [Op.gte]: query.longitude - query.acurracyLng,
+      [Op.lte]: query.longitude + query.acurracyLng,
     };
     where.latitude = {
-      [Op.gte]: query.latitude - query.acurracy,
-      [Op.lte]: query.latitude + query.acurracy,
+      [Op.gte]: query.latitude - query.acurracyLat,
+      [Op.lte]: query.latitude + query.acurracyLat,
     };
   }
 
