@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Map as LeafletMap } from "leaflet";
+import { LatLngLiteral, Map as LeafletMap } from "leaflet";
 import { useRef, useState } from "react";
 import { SelectAreaMarker } from "./SelectAreaMarker";
 import loading from "./../../assets/loading.gif";
@@ -9,7 +9,7 @@ import dayjs from "dayjs";
 import { MapContainer, TileLayer } from "react-leaflet";
 import { LocationHistory } from "./../../types";
 import { fetchGetLocations } from "./../../service";
-import { acurrancyMetersToDegrees, buildRoutes } from "./../../utils";
+import { buildRoutes } from "./../../utils";
 import { RouteMarker } from "./RouteMarker";
 import { RouteCard } from "./RouteCard";
 
@@ -24,13 +24,10 @@ export const History = () => {
     startDate: dayjs().startOf("day").format("YYYY-MM-DDTHH:mm"),
     endDate: dayjs().endOf("day").format("YYYY-MM-DDTHH:mm"),
   });
-  const [position, setPosition] = useState({
-    lat: 0,
-    lng: 0,
-  });
+  const [position, setPosition] = useState<LatLngLiteral>({ lat: 0, lng: 0 });
+  const [area, setArea] = useState<LatLngLiteral>({ lat: 0, lng: 0 });
   const [searching, setSearching] = useState(false);
   const [searchByArea, setSearchByArea] = useState(false);
-  const [area, setArea] = useState(100);
   const [selection, setSelection] = useState(0);
 
   const onSearchHistory = async () => {
@@ -48,7 +45,8 @@ export const History = () => {
           dateI: rangeDate.startDate,
           dateF: rangeDate.endDate,
           //@ts-ignore
-          acurracyDegree: acurrancyMetersToDegrees(area),
+          acurracyDegreeLat: area.lat,
+          acurracyDegreeLng: area.lng,
           longitude: position.lng,
           latitude: position.lat,
         };
@@ -87,12 +85,8 @@ export const History = () => {
     <div className="w-full h-full text-slate-800  flex flex-col gap-3">
       <div className=" border-solid border border-slate-300 rounded-lg p-2">
         <Search
-          area={area}
           rangeDate={rangeDate}
           setRangeDate={setRangeDate}
-          searchByArea={searchByArea}
-          setSearchByArea={setSearchByArea}
-          setArea={setArea}
           onSearchHistory={onSearchHistory}
         />
       </div>
@@ -161,13 +155,14 @@ export const History = () => {
               <RouteMarker route={locationHistory.routes[selection - 1]} />
             )}
 
-          {searchByArea && (
-            <SelectAreaMarker
-              range={acurrancyMetersToDegrees(area)}
-              position={position}
-              setPosition={setPosition}
-            />
-          )}
+          <SelectAreaMarker
+            range={area}
+            setRange={setArea}
+            position={position}
+            setPosition={setPosition}
+            searchByArea={searchByArea}
+            setSearchByArea={setSearchByArea}
+          />
         </MapContainer>
       </div>
       {searchByArea && (

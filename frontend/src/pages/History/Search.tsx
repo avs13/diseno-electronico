@@ -1,6 +1,4 @@
 import dayjs from "dayjs";
-import isoWeek from "dayjs/plugin/isoWeek";
-import { ToggleButton } from "../../components/ToggleButton";
 import { MagnifyinGlass } from "../../components/icons";
 
 interface RangeDate {
@@ -8,25 +6,12 @@ interface RangeDate {
   endDate: string;
 }
 interface Props {
-  searchByArea: boolean;
-  area: number;
   rangeDate: RangeDate;
   setRangeDate: (value: RangeDate) => void;
   onSearchHistory: () => void;
-  setSearchByArea: (value: boolean) => void;
-  setArea: (value: number) => void;
 }
-dayjs.extend(isoWeek);
 
-export const Search = ({
-  area,
-  rangeDate,
-  setRangeDate,
-  searchByArea,
-  setSearchByArea,
-  setArea,
-  onSearchHistory,
-}: Props) => {
+export const Search = ({ rangeDate, setRangeDate, onSearchHistory }: Props) => {
   return (
     <>
       <p className="font-semibold text-xl text-center">Mi ultima ubicacion</p>
@@ -67,36 +52,6 @@ export const Search = ({
               />
             </div>
           </div>
-          <div>
-            <div>
-              <label htmlFor="">
-                Buscar por area:
-                <ToggleButton
-                  onChange={({ target }) => {
-                    setSearchByArea(target.checked);
-                    
-                  }}
-                  value={searchByArea}
-                />
-              </label>
-            </div>
-            {searchByArea && (
-              <label htmlFor="" className="w-full">
-                Rango:
-                <input
-                  type="range"
-                  min="200"
-                  step="100"
-                  max="2000"
-                  value={area}
-                  onChange={({ target }) => {
-                    setArea(parseInt(target.value));
-                  }}
-                />
-                <p> {area} m </p>
-              </label>
-            )}
-          </div>
         </div>
 
         <button
@@ -107,6 +62,24 @@ export const Search = ({
           <MagnifyinGlass />
           Buscar
         </button>
+        <p className="text-gray-600">
+          Para selecionar area arrastre el mouse manteniendo presionado:
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-6 h-6 mr-1 inline-block"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M5,21 L19,21 L5,21 Z M16,12 L16,17 L8,17 L8,12 L3,12 L12,3 L21,12 L16,12 Z"
+            />
+          </svg>
+          (shift) + Click izquierdo
+        </p>
       </form>
     </>
   );

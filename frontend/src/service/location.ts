@@ -1,17 +1,21 @@
 import { Location } from "../types";
 
-export const fetchGetLocations = async (query: {
+interface Query {
   dateI: string;
   dateF: string;
   longitude?: number;
   latitude?: number;
-  acurracyDegree?: number;
-}) => {
+  acurracyDegreeLat?: number;
+  acurracyDegreeLng?: number;
+}
+
+export const fetchGetLocations = async (query: Query) => {
   const reponse = await fetch(
     "/api/location/?" +
       new URLSearchParams({
         ...query,
-        acurracyDegree: query.acurracyDegree?.toString() || "",
+        acurracyDegreeLng: query.acurracyDegreeLng?.toString() || "",
+        acurracyDegreeLat: query.acurracyDegreeLat?.toString() || "",
         longitude: query.longitude?.toString() || "",
         latitude: query.latitude?.toString() || "",
       })
