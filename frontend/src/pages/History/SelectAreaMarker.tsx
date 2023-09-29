@@ -1,14 +1,23 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { Marker, Popup, Rectangle, useMapEvents } from "react-leaflet";
-
+import { LatLngLiteral } from "leaflet";
 interface Props {
-  range: number;
-  position: { lat: number; lng: number };
-  setPosition: ({}: { lat: number; lng: number }) => void;
+  range: LatLngLiteral;
+  position: LatLngLiteral;
+  searchByArea: boolean;
+  setPosition: ({}: LatLngLiteral) => void;
+  setRange: ({}: LatLngLiteral) => void;
+  setSearchByArea: (hidden: boolean) => void;
 }
 
-export const SelectAreaMarker = ({ range, position, setPosition }: Props) => {
-  const [hidden, setHidden] = useState(true);
+export const SelectAreaMarker = ({
+  range,
+  position,
+  setPosition,
+  setRange,
+  searchByArea,
+  setSearchByArea,
+}: Props) => {
   const markerRef = useRef(null);
   const eventHandlers = useMemo(
     () => ({
@@ -24,14 +33,30 @@ export const SelectAreaMarker = ({ range, position, setPosition }: Props) => {
   );
   useMapEvents({
     dblclick: (e) => {
-      setHidden(false);
       setPosition(e.latlng);
     },
+    //@ts-ignore
+    boxzoomend: (e) => {
+      const y = e.boxZoomBounds;
+      const first = y._northEast;
+
+      const second = y._southWest;
+      setSearchByArea(true);
+      setPosition({
+        lat: (first.lat + second.lat) / 2,
+        lng: (first.lng + second.lng) / 2,
+      });
+      setRange({
+        lat: (first.lat - second.lat) / 2,
+        lng: (first.lng - second.lng) / 2,
+      });
+    },
   });
+
   const toggleDraggable = useCallback(() => {
-    setHidden(true);
+    setSearchByArea(false);
   }, []);
-  if (!hidden)
+  if (searchByArea)
     return (
       <>
         (
@@ -42,14 +67,14 @@ export const SelectAreaMarker = ({ range, position, setPosition }: Props) => {
           ref={markerRef}
         >
           <Popup minWidth={90}>
-            <span onClick={toggleDraggable}>Eliminar Marker</span>
+            <span onClick={toggleDraggable}>Dejar de buscar por area</span>
           </Popup>
         </Marker>
         )
         <Rectangle
           bounds={[
-            [position.lat - range, position.lng - range],
-            [position.lat + range, position.lng + range],
+            [position.lat - range.lat, position.lng - range.lng],
+            [position.lat + range.lat, position.lng + range.lng],
           ]}
           pathOptions={{ color: "yellow" }}
         />
