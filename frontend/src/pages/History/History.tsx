@@ -68,10 +68,8 @@ export const History = () => {
   };
 
   useEffect(() => {
-    if (searchByArea === true) {
-      onSearchHistory();
-    }
-  }, [position, area]);
+    onSearchHistory();
+  }, [position, area, rangeDate]);
 
   useEffect(() => {
     setLocationHistory({
@@ -105,10 +103,14 @@ export const History = () => {
           {searchByArea && locationHistory.routes.length > 0 && (
             <p>{`Recorridos Disponibles ${locationHistory.routes.length}`}</p>
           )}
-          {searchByArea &&
+          {!searching &&
+            searchByArea &&
             locationHistory.routes.length > 0 &&
             selection > 0 && (
-              <RouteCard route={locationHistory.routes[selection - 1]} />
+              <RouteCard
+                route={locationHistory.routes[selection - 1]}
+                index={selection}
+              />
             )}
 
           {!searchByArea && (

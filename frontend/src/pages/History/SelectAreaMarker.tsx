@@ -66,7 +66,7 @@ export const SelectAreaMarker = ({
           position={position}
           ref={markerRef}
         >
-          <Popup minWidth={90}>
+          <Popup minWidth={90} className="cursor-pointer">
             <span onClick={toggleDraggable}>Dejar de buscar por area</span>
           </Popup>
         </Marker>

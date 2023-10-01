@@ -22,7 +22,7 @@ export function buildRoutes(
 
   locationHistory.routes = routes.map((route, index) => {
     return {
-      routeName: `Route ${index}`,
+      routeName: `Recorrido ${index}`,
       startDate: new Date(route[0].timestamp),
       endDate: new Date(route[route.length - 1].timestamp),
       locations: route.map((location) => [

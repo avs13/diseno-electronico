@@ -1,9 +1,9 @@
-import { Marker, Polyline, Popup } from "react-leaflet";
+import { Marker, Popup } from "react-leaflet";
 import { Fragment } from "react";
 
 import { iconEnd, iconStart } from "../../components/icons";
 import { Route } from "../../types";
-
+import { ArrowheadsPolyline } from "./../../components";
 interface Props {
   routes: Route[];
 }
@@ -32,7 +32,15 @@ export const RoutesMarker = ({ routes }: Props) => {
             ][1].toFixed(5)}`}</Popup>
           </Marker>
 
-          <Polyline positions={route.locations} color="red" lineCap="butt" />
+          <ArrowheadsPolyline
+            positions={route.locations}
+            color="red"
+            arrowheads={{
+              size: "10px",
+              frequency: "50px",
+              fill: true,
+            }}
+          />
         </Fragment>
       ))}
     </>
