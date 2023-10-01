@@ -2,14 +2,9 @@ import { isValidCoordinates } from "./../utils/isValidCoordinates";
 import { useEffect, useRef, useState } from "react";
 import { Location } from "./../types/location";
 import { LatLngTuple, Map as LeafletMap } from "leaflet";
-import {
-  MapContainer,
-  TileLayer,
-  Popup,
-  Marker,
-  Polyline,
-} from "react-leaflet";
+import { MapContainer, TileLayer, Popup, Marker } from "react-leaflet";
 import dayjs from "dayjs";
+import { ArrowheadsPolyline } from "../components";
 
 const socket = new WebSocket(`ws://${location.host}`);
 
@@ -97,7 +92,12 @@ export const Map = () => {
             5
           )}`}</Popup>
         </Marker>
-        {poly.length >= 2 && trace && <Polyline positions={poly} />}
+        {poly.length >= 2 && trace && (
+          <ArrowheadsPolyline
+            positions={poly}
+            arrowheads={{ size: "10px", fill: true, frequency: "allvertices" }}
+          />
+        )}
       </MapContainer>
     </div>
   );

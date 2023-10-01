@@ -3,15 +3,22 @@ import { Route } from "./../../types";
 
 interface Props {
   route: Route;
+  index?: number;
   onClick?: () => void;
 }
 
-export const RouteCard = ({ route, onClick }: Props) => {
+export const RouteCard = ({ route, onClick, index }: Props) => {
   return (
     <div
       className="mb-2 pl-1 border hover:bg-slate-100 cursor-pointer "
       onClick={onClick}
     >
+      {index && (
+        <p>
+          <span className="italic font-semibold">Recorrido: </span>
+          {index}
+        </p>
+      )}
       <p>
         <span className="italic font-semibold">Fecha: </span>
         {dayjs(route.startDate).format("DD/MM/YYYY MM:ss  a")}

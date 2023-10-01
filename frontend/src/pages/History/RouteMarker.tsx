@@ -1,6 +1,7 @@
-import { Marker, Polyline, Popup } from "react-leaflet";
+import { Marker, Popup } from "react-leaflet";
 import dayjs from "dayjs";
 
+import { ArrowheadsPolyline } from "../../components";
 import { iconEnd, iconStart } from "../../components/icons";
 import { Route } from "../../types";
 
@@ -19,11 +20,12 @@ export const RouteMarker = ({ route }: { route: Route }) => {
         <Popup>{`Ultima ubicacion: 
         ${dayjs(route.endDate).format("DD/MM/YYYY mm:s a")}`}</Popup>
       </Marker>
-      <Polyline
+      <ArrowheadsPolyline
         key={route.routeName}
         positions={route.locations}
         color="red"
         lineCap="butt"
+        arrowheads={{ size: "10px", frequency: "50px", fill: true }}
       />
     </>
   );
