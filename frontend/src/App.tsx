@@ -8,14 +8,10 @@ function App() {
     <BrowserRouter>
       <LayoutApp>
         <Routes>
-          
           <Route path="/history" element={<History />} />
           <Route path="/tutorial" element={<WelcomePage />} />
           <Route path="/real-time" element={<Map />} />
-          <Route
-        path="*"
-        element={<Navigate to="/real-time" replace />}
-    /> 
+          <Route path="*" element={<Navigate to="/tutorial" replace />} />
         </Routes>
       </LayoutApp>
     </BrowserRouter>
