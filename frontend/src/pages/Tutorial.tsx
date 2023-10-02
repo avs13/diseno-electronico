@@ -38,10 +38,8 @@ export const WelcomePage: React.FC = () => {
         Si desea buscar las rutas realizadas entre ciertas fechas pero, en un área específica, puede activar el toggle de "Buscar por área", elegir la distancia del radio de esta área, reconfigurar la fecha inicial y final, y por último darle clic en "Buscar". En la parte inferior del mapa tendrá acceso a un slider para poder visualizar ruta por ruta.
 	</p>
 	
-	<h4>Recuerde que puede regresar a leer este tutorial, haciendo clic en la pestaña de "Home".</h>
-	</div>
+	<h4>Recuerde que puede regresar a leer este tutorial, haciendo clic en la pestaña de "Home".</h4>
 	</body>
 </html>
   );
-}
-
+};
