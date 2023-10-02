@@ -8,7 +8,7 @@ interface Props {
 const items: Item[] = [
   {
     to: "/tutorial",
-    label: "Inicio",
+    label: "Home",
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
