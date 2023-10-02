@@ -40,7 +40,7 @@ export const Map = () => {
   return (
     <div className="w-full h-full text-slate-800  flex flex-col gap-3">
       <div className=" border-solid border border-slate-300 rounded-lg p-2">
-        <p className="font-semibold text-xl text-center">My GPS App</p>
+        <p className="font-semibold text-xl text-center">Ubicación en tiempo real</p>
         <div className="flex justify-between w-4/12">
           <div>
             <p>
