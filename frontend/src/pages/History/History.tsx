@@ -6,8 +6,8 @@ import loading from "./../../assets/loading.gif";
 import { RoutesMarker } from "./RoutesMarker";
 import { Search } from "./Search";
 import dayjs from "dayjs";
-import { MapContainer, TileLayer } from "react-leaflet";
-import { LocationHistory } from "./../../types";
+import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
+import { Location, LocationHistory } from "./../../types";
 import { fetchGetLocations } from "./../../service";
 import { buildRoutes } from "./../../utils";
 import { RouteMarker } from "./RouteMarker";
@@ -15,6 +15,7 @@ import { RouteCard } from "./RouteCard";
 
 export const History = () => {
   const mapRef = useRef<LeafletMap>(null);
+  const [locations, setLocations] = useState<Location[]>([]);
   const [locationHistory, setLocationHistory] = useState<LocationHistory>({
     startDate: new Date(),
     endDate: new Date(),
@@ -53,10 +54,12 @@ export const History = () => {
       }
       const data = await fetchGetLocations(query);
       if (data.length > 0) {
+        setLocations(data);
         const locationHistory = buildRoutes([...data]);
         setLocationHistory(locationHistory);
-        setSelection(locationHistory.routes.length);
+        setSelection(data.length);
       } else {
+        setLocations([]);
         setLocationHistory({
           ...locationHistory,
           routes: [],
@@ -103,7 +106,7 @@ export const History = () => {
           {searchByArea && locationHistory.routes.length > 0 && (
             <p>{`Recorridos Disponibles ${locationHistory.routes.length}`}</p>
           )}
-          {!searching &&
+          {/*  {!searching &&
             searchByArea &&
             locationHistory.routes.length > 0 &&
             selection > 0 && (
@@ -111,7 +114,7 @@ export const History = () => {
                 route={locationHistory.routes[selection - 1]}
                 index={selection}
               />
-            )}
+            )} */}
 
           {!searchByArea && (
             <>
@@ -151,11 +154,26 @@ export const History = () => {
 
           {!searchByArea && <RoutesMarker routes={locationHistory.routes} />}
 
-          {searchByArea &&
-            locationHistory.routes.length > 0 &&
-            selection > 0 && (
-              <RouteMarker route={locationHistory.routes[selection - 1]} />
-            )}
+          {searchByArea && locations.length > 0 && selection > 0 && (
+            <>
+              <Marker
+                position={{
+                  lat: locations[selection - 1].latitude,
+                  lng: locations[selection - 1].longitude,
+                }}
+              ></Marker>
+              <Popup
+                position={{
+                  lat: locations[selection - 1].latitude,
+                  lng: locations[selection - 1].longitude,
+                }}
+              >
+                {`Estuvo a las: ${dayjs(
+                  locations[selection - 1].timestamp
+                ).format("DD/MM/YYYY hh:mm a")}`}
+              </Popup>
+            </>
+          )}
 
           <SelectAreaMarker
             range={area}
@@ -168,17 +186,17 @@ export const History = () => {
         </MapContainer>
       </div>
       {searchByArea && (
-        <div className="w-1/3 mx-auto flex">
+        <div className="w-1/2 mx-auto flex">
           <input
             type="range"
             min="0"
             value={selection}
             onChange={({ target }) => setSelection(parseInt(target.value))}
-            max={locationHistory.routes.length}
+            max={locations.length}
             className="w-full"
-            disabled={locationHistory.routes.length == 0}
+            disabled={locations.length == 0}
           />
-          <p>{selection + "/" + locationHistory.routes.length}</p>
+          <p>{selection + "/" + locations.length}</p>
         </div>
       )}
     </div>

@@ -20,12 +20,13 @@ export const RouteMarker = ({ route }: { route: Route }) => {
         <Popup>{`Ultima ubicacion: 
         ${dayjs(route.endDate).format("DD/MM/YYYY mm:s a")}`}</Popup>
       </Marker>
+
       <ArrowheadsPolyline
         key={route.routeName}
         positions={route.locations}
         color="red"
         lineCap="butt"
-        arrowheads={{ size: "10px", frequency: "50px", fill: true }}
+        arrowheads={{ size: "10px", fill: true }}
       />
     </>
   );
