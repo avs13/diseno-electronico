@@ -50,15 +50,16 @@ export const WelcomePage: React.FC = () => {
               ¿Cómo funciona?
             </h3>
             <p>
-              Deberá seleccionar en el recuadro de fecha y hora, haciendo clic
-              en el ícono de calendario, la fecha inicial y final en la cual
-              desea ver el recorrido, y hacer clic en el botón de "Buscar". Si
-              desea buscar las rutas realizadas entre ciertas fechas pero, en un
-              área específica, puede activar el toggle de "Buscar por área",
-              elegir la distancia del radio de esta área, reconfigurar la fecha
-              inicial y final, y por último darle clic en "Buscar". En la parte
-              inferior del mapa tendrá acceso a un slider para poder visualizar
-              ruta por ruta.
+              Deberá seleccionar el rango de fechas y horarios deseados para ver el recorrido, 
+              simplemente haga clic en el ícono del calendario en el recuadro correspondiente. 
+              Luego, elija la fecha de inicio y la fecha de finalización que le interesen.
+
+              Si desea buscar rutas específicas realizadas en un área determinada dentro de cierto período de tiempo, 
+              puede hacerlo arrastrando el mouse mientras mantiene presionada la tecla "Shift" y haciendo clic con el botón izquierdo 
+              del mouse para definir un radio de búsqueda en el mapa.
+
+              En la parte inferior del mapa, encontrará un control deslizante (slider) que le permitirá visualizar las rutas una por una, 
+              facilitando así su exploración.
             </p>
           </section>
         </NavLink>
