@@ -14,7 +14,7 @@ interface Props {
 export const Search = ({ rangeDate, setRangeDate, onSearchHistory }: Props) => {
   return (
     <>
-      <p className="font-semibold text-xl text-center">Mi ultima ubicacion</p>
+      <h1 className="font-semibold text-xl text-center">Históricos de ubicaciones</h1>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -63,7 +63,7 @@ export const Search = ({ rangeDate, setRangeDate, onSearchHistory }: Props) => {
           Buscar
         </button>
         <p className="text-gray-600">
-          Para selecionar area arrastre el mouse manteniendo presionado:
+          Para selecionar área arrastre el mouse manteniendo presionado:
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
